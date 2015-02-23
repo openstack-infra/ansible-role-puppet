@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this software.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
+import os
 import pipes
 
 DOCUMENTATION = '''
@@ -40,6 +42,31 @@ options:
     required: false
     default: no
     choices: [ "yes", "no" ]
+  facts:
+    description:
+      - A dict of values to pass in as persistent external facter facts
+    required: false
+    default: None
+  facter_basename:
+    desciption:
+      - Basename of the facter output file
+    required: false
+    default: ansible
+  hiera:
+    description:
+      - A dict of values to write to a local hiera file
+    required: false
+    default: None
+  hiera_datadir:
+    description:
+      - Hiera's data dir
+    required: false
+    default: /etc/puppet/hieradata
+  hiera_basename:
+    desciption:
+      - Basename of the hiera output file
+    required: false
+    default: ansible
 requirements: [ puppet ]
 author: Monty Taylor
 '''
@@ -53,6 +80,22 @@ EXAMPLES = '''
 '''
 
 
+def _get_facter_dir():
+    if os.getuid() == 0:
+        return '/etc/facter/facts.d'
+    else:
+        return os.path.expanduser('~/.facter/facts.d')
+
+
+def _write_structured_data(basedir, basename, data):
+    # Ensure filepath?
+    file_path = os.path.join(basedir, "{0}.json".format(basename))
+    with os.fdopen(
+            os.open(file_path, os.O_CREAT | os.O_WRONLY, 0c600),
+            'w') as out_file:
+        out_file.write(json.dumps(data).encode('utf8'))
+
+
 def main():
     module = AnsibleModule(
         argument_spec=dict(
@@ -60,6 +103,11 @@ def main():
             puppetmaster=dict(required=True),
             show_diff=dict(
                 default=False, aliases=['show-diff'], type='bool'),
+            facts=dict(default=None),
+            facter_basename=dict(default='ansible'),
+            hiera=dict(default=None),
+            hiera_datadir=dict(default='/etc/puppet/hieradata'),
+            hiera_basename=dict(default='ansible'),
         ),
     )
     p = module.params
@@ -70,6 +118,29 @@ def main():
     if not PUPPET_CMD:
         module.fail_json(
             msg="Could not find puppet. Please ensure it is installed.")
+
+    # Check if puppet is disabled here
+    rc, stdout, stderr = module.run_command(PUPPET_CMD + " agent "
+                                            "--configprint "
+                                            "agent_disabled_lockfile")
+    if os.path.exists(stdout.strip()):
+        module.fail_json(
+            msg="Puppet agent is administratively disabled.", disabled=True)
+    elif rc != 0:
+        module.fail_json(
+            msg="Puppet agent state could not be determined.")
+
+    if module.params['hiera']:
+        _write_structured_data(
+            module.params['hiera_datadir'],
+            module.params['hiera_basename'],
+            module.params['hiera'])
+
+    if module.params['facts']:
+        _write_structured_data(
+            _get_facter_dir(),
+            module.params['facter_basename'],
+            module.params['facts'])
 
     cmd = ("timeout -s 9 %(timeout)s %(puppet_cmd)s agent --onetime"
            " --server %(puppetmaster)s"
