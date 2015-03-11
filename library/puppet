@@ -91,7 +91,7 @@ def _write_structured_data(basedir, basename, data):
     # Ensure filepath?
     file_path = os.path.join(basedir, "{0}.json".format(basename))
     with os.fdopen(
-            os.open(file_path, os.O_CREAT | os.O_WRONLY, 0c600),
+            os.open(file_path, os.O_CREAT | os.O_WRONLY, 0o600),
             'w') as out_file:
         out_file.write(json.dumps(data).encode('utf8'))
 
