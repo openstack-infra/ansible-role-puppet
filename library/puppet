@@ -34,8 +34,12 @@ options:
     default: 30m
   puppetmaster:
     description:
-      - The hostname of the puppetmaster to contact.
-    required: true
+      - The hostname of the puppetmaster to contact. Must have this or manifest
+    required: false
+  manifest:
+    desciption:
+      - Path to the manifest file to run puppet apply on. Must have this or puppetmaster
+    required: false
   show_diff:
     description:
       - Should puppet return diffs of changes applied. Defaults to off to avoid leaking secret changes by default.
@@ -112,7 +116,8 @@ def main():
     module = AnsibleModule(
         argument_spec=dict(
             timeout=dict(default="30m"),
-            puppetmaster=dict(required=True),
+            puppetmaster=dict(required=False),
+            manifest=dict(required=False),
             show_diff=dict(
                 default=False, aliases=['show-diff'], type='bool'),
             facts=dict(default=None),
@@ -122,6 +127,9 @@ def main():
             hiera_basename=dict(default='ansible'),
             hiera_filter=dict(default=None),
         ),
+        required_one_of=[
+            ('puppetmaster', 'manifest'),
+        ],
     )
     p = module.params
 
@@ -132,16 +140,23 @@ def main():
         module.fail_json(
             msg="Could not find puppet. Please ensure it is installed.")
 
+    if p['manifest']:
+        if not os.path.exists(p['manifest']):
+            module.fail_json(
+                msg="Manifest file %(manifest)s not found." % dict(
+                    manifest=p['manifest'])
+
     # Check if puppet is disabled here
-    rc, stdout, stderr = module.run_command(PUPPET_CMD + " agent "
-                                            "--configprint "
-                                            "agent_disabled_lockfile")
-    if os.path.exists(stdout.strip()):
-        module.fail_json(
-            msg="Puppet agent is administratively disabled.", disabled=True)
-    elif rc != 0:
-        module.fail_json(
-            msg="Puppet agent state could not be determined.")
+    if p['pupeptmaster']:
+        rc, stdout, stderr = module.run_command(PUPPET_CMD + " agent "
+                                                "--configprint "
+                                                "agent_disabled_lockfile")
+        if os.path.exists(stdout.strip()):
+            module.fail_json(
+                msg="Puppet agent is administratively disabled.", disabled=True)
+        elif rc != 0:
+            module.fail_json(
+                msg="Puppet agent state could not be determined.")
 
     if module.params['hiera']:
         hieradata = _filter_hiera(
@@ -157,14 +172,22 @@ def main():
             module.params['facter_basename'],
             module.params['facts'])
 
-    cmd = ("timeout -s 9 %(timeout)s %(puppet_cmd)s agent --onetime"
-           " --server %(puppetmaster)s"
-           " --ignorecache --no-daemonize --no-usecacheonfailure --no-splay"
-           " --detailed-exitcodes --verbose") % dict(
-               timeout=pipes.quote(p['timeout']), puppet_cmd=PUPPET_CMD,
-               puppetmaster=pipes.quote(p['puppetmaster']))
-    if p['show_diff']:
-        cmd += " --show-diff"
+    base_cmd = "timeout -s 9 %(timeout)s %(puppet_cmd)s" % dict(
+        timeout=pipes.quote(p['timeout']), puppet_cmd=PUPPET_CMD)
+
+    if p['puppetmaster']:
+        cmd = ("%(base_cmd) agent --onetime"
+               " --server %(puppetmaster)s"
+               " --ignorecache --no-daemonize --no-usecacheonfailure --no-splay"
+               " --detailed-exitcodes --verbose") % dict(
+                   base_cmd=base_cmd,
+                   puppetmaster=pipes.quote(p['puppetmaster']))
+        if p['show_diff']:
+            cmd += " --show-diff"
+    else:
+        cmd = ("%(base_cmd) apply --detailed-exitcodes %(manifest)s" % dict(
+                   base_cmd=base_cmd,
+                   manifest=pipes.quote(p['manifest']))
     rc, stdout, stderr = module.run_command(cmd)
 
     if rc == 0:

@@ -1,8 +1,8 @@
 ---
 - name: run puppet
   puppet:
-    puppetmaster: "{{ puppetmaster }}"
-    timeout: "{{ timeout|default(omit) }}"
+    puppetmaster: "{{ puppetmaster|default(omit) }}"
+    manifest: "{{ manifest|default(omit) }}"
     show_diff: "{{ show_diff|default(omit) }}"
     facts: "{{ facts|default(omit) }}"
     facter_basename: "{{ facter_basename|default(omit) }}"
