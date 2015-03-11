@@ -1,4 +1,7 @@
 ---
+- name: read hieradata
+  include_vars: "{{ hieradata_file }}"
+  when: hieradata_file is defined
 - name: run puppet
   puppet:
     puppetmaster: "{{ puppetmaster|default(omit) }}"
@@ -10,3 +13,4 @@
     hiera_datadir: "{{ hiera_datadir|default(omit) }}"
     hiera_basename: "{{ hiera_basename|default(omit) }}"
     hiera_filter: "{{ hiera_filter|default(omit) }}"
+    hiera_hostvars: "{{ hostvars[inventory_hostname] if inject_hostvars is defined or hieradata_file is defined else dict() }}"

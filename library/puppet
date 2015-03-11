@@ -60,7 +60,7 @@ options:
     description:
       - A dict of values to write to a local hiera file
     required: false
-    default: None
+    default: {}
   hiera_datadir:
     description:
       - Hiera's data dir
@@ -77,6 +77,11 @@ options:
         keys will be sent through
     required: false
     default: None
+  hiera_hostvars:
+    description:
+      - Base dictionary overtop of which the hiera param will be added.
+    required: false
+    default: {}
 requirements: [ puppet ]
 author: Monty Taylor
 '''
@@ -106,10 +111,12 @@ def _write_structured_data(basedir, basename, data):
         out_file.write(json.dumps(data).encode('utf8'))
 
 
-def _filter_hiera(hieradata, filter_dict):
+def _filter_hiera(hieradata, hostvars, filter_dict):
+    ret = hostvars.copy()
+    ret.update(hieradata)
     if not keys:
-        return hieradata
-    return {k: v for k,v in hieradata.items() if k in filter_dict}
+        return ret
+    return {k: v for k,v in ret.items() if k in filter_dict}
 
 
 def main():
@@ -122,10 +129,11 @@ def main():
                 default=False, aliases=['show-diff'], type='bool'),
             facts=dict(default=None),
             facter_basename=dict(default='ansible'),
-            hiera=dict(default=None),
+            hiera=dict(default={}),
             hiera_datadir=dict(default='/etc/puppet/hieradata'),
             hiera_basename=dict(default='ansible'),
             hiera_filter=dict(default=None),
+            hiera_hostvars=dict(default={}),
         ),
         required_one_of=[
             ('puppetmaster', 'manifest'),
@@ -158,9 +166,11 @@ def main():
             module.fail_json(
                 msg="Puppet agent state could not be determined.")
 
-    if module.params['hiera']:
+    if module.params['hiera'] or module_params['hiera_hostvars']:
         hieradata = _filter_hiera(
-            module.params['hiera'], module.params['hiera_filter'])
+            module.params['hiera'],
+            module.params['hiera_hostvars'],
+            module.params['hiera_filter'])
         _write_structured_data(
             module.params['hiera_datadir'],
             module.params['hiera_basename'],
