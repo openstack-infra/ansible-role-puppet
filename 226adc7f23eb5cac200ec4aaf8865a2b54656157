@@ -1,0 +1,9 @@
+Verified+2: Jenkins
+Code-Review+2: Jeremy Stanley <fungi@yuggoth.org>
+Workflow+1: Jeremy Stanley <fungi@yuggoth.org>
+Code-Review+1: Spencer Krum <nibz@spencerkrum.com>
+Submitted-by: Jenkins
+Submitted-at: Wed, 11 Mar 2015 21:59:18 +0000
+Reviewed-on: https://review.openstack.org/163618
+Project: openstack-infra/ansible-puppet
+Branch: refs/heads/master
