@@ -9,3 +9,4 @@
     hiera: "{{ hiera|default(omit) }}"
     hiera_datadir: "{{ hiera_datadir|default(omit) }}"
     hiera_basename: "{{ hiera_basename|default(omit) }}"
+    hiera_filter: "{{ hiera_filter|default(omit) }}"

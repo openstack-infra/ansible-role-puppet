@@ -67,6 +67,12 @@ options:
       - Basename of the hiera output file
     required: false
     default: ansible
+  hiera_filter:
+    description:
+      - List of keys from the hiera dict to keep. If none are given, all hiera
+        keys will be sent through
+    required: false
+    default: None
 requirements: [ puppet ]
 author: Monty Taylor
 '''
@@ -96,6 +102,12 @@ def _write_structured_data(basedir, basename, data):
         out_file.write(json.dumps(data).encode('utf8'))
 
 
+def _filter_hiera(hieradata, filter_dict):
+    if not keys:
+        return hieradata
+    return {k: v for k,v in hieradata.items() if k in filter_dict}
+
+
 def main():
     module = AnsibleModule(
         argument_spec=dict(
@@ -108,6 +120,7 @@ def main():
             hiera=dict(default=None),
             hiera_datadir=dict(default='/etc/puppet/hieradata'),
             hiera_basename=dict(default='ansible'),
+            hiera_filter=dict(default=None),
         ),
     )
     p = module.params
@@ -131,10 +144,12 @@ def main():
             msg="Puppet agent state could not be determined.")
 
     if module.params['hiera']:
+        hieradata = _filter_hiera(
+            module.params['hiera'], module.params['hiera_filter'])
         _write_structured_data(
             module.params['hiera_datadir'],
             module.params['hiera_basename'],
-            module.params['hiera'])
+            hieradata)
 
     if module.params['facts']:
         _write_structured_data(
