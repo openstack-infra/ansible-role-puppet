@@ -56,21 +56,6 @@ options:
       - Basename of the facter output file
     required: false
     default: ansible
-  hiera:
-    description:
-      - A dict of values to write to a local hiera file
-    required: false
-    default: None
-  hiera_datadir:
-    description:
-      - Hiera's data dir
-    required: false
-    default: /etc/puppet/hieradata
-  hiera_basename:
-    desciption:
-      - Basename of the hiera output file
-    required: false
-    default: ansible
 requirements: [ puppet ]
 author: Monty Taylor
 '''
@@ -111,9 +96,6 @@ def main():
                 default=False, aliases=['show-diff'], type='bool'),
             facts=dict(default=None),
             facter_basename=dict(default='ansible'),
-            hiera=dict(default=None),
-            hiera_datadir=dict(default='/etc/puppet/hieradata'),
-            hiera_basename=dict(default='ansible'),
         ),
         required_one_of=[
             ('puppetmaster', 'manifest'),
@@ -135,22 +117,15 @@ def main():
                     manifest=p['manifest'])
 
     # Check if puppet is disabled here
-    if p['pupeptmaster']:
-        rc, stdout, stderr = module.run_command(PUPPET_CMD + " agent "
-                                                "--configprint "
-                                                "agent_disabled_lockfile")
+    if p['puppetmaster']:
+        rc, stdout, stderr = module.run_command(
+            PUPPET_CMD + "config print agent_disabled_lockfile")
         if os.path.exists(stdout.strip()):
             module.fail_json(
                 msg="Puppet agent is administratively disabled.", disabled=True)
         elif rc != 0:
             module.fail_json(
                 msg="Puppet agent state could not be determined.")
-
-    if module.params['hiera']:
-        _write_structured_data(
-            module.params['hiera_datadir'],
-            module.params['hiera_basename'],
-            module.params['hiera'])
 
     if module.params['facts']:
         _write_structured_data(
