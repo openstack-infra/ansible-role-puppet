@@ -6,6 +6,3 @@
     show_diff: "{{ show_diff|default(omit) }}"
     facts: "{{ facts|default(omit) }}"
     facter_basename: "{{ facter_basename|default(omit) }}"
-    hiera: "{{ hiera|default(omit) }}"
-    hiera_datadir: "{{ hiera_datadir|default(omit) }}"
-    hiera_basename: "{{ hiera_basename|default(omit) }}"
