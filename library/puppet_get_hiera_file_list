@@ -1,0 +1,54 @@
+#!/usr/bin/python
+
+# Copyright (c) 2015 Hewlett-Packard Development Company, L.P.
+#
+# This module is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This software is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this software.  If not, see <http://www.gnu.org/licenses/>.
+
+DOCUMENTATION = '''
+---
+module: puppet_get_hiera_file_list
+short_description: Create a list of hiera file paths
+description:
+  - Create a list of hiera file paths
+options:
+  fqdn:
+    description:
+    - The ansible fqdn
+    required: true
+  groups:
+    description:
+    - The groups the host is in
+    required: true
+requirements: [ ]
+author: Monty Taylor
+'''
+
+
+def main():
+    module = AnsibleModule(
+        argument_spec=dict(
+            fqdn=dict(required=True),
+            groups=dict(required=True),
+        ),
+    )
+    p = module.params
+
+    module.exit_json(paths=[
+        'common.yaml',
+        'fqdn/%s.yaml' % fqdn] + ['group/%s.yaml' % f for f in groups])
+
+# import module snippets
+from ansible.module_utils.basic import *
+
+main()

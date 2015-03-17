@@ -1,4 +1,33 @@
 ---
+- name: ensure hiera datadir
+  file:
+    state: directory
+    path: "{{ hieradata }}/{{ hieraenvironment }}"
+    owner: root
+    group: root
+    mode: 0700
+  when: copy_hieradata
+- name: make file list
+  puppet_get_hiera_file_list:
+    fdqn: "{{ ansible_fqdn }}"
+    groups: "{{ hostvars[inventory_hostname].group_names }}"
+  register: hiera_file_paths
+- name: find which files exist
+  stat:
+    path: "{{ hieradata }}/{{ hieraenvironment }}/{{ item }}"
+  register: st
+  with_items: hiera_file_paths
+  delegate_to: localhost
+  when: copy_hieradata
+- name: copy hiera files
+  when: copy_hieradata and item.1.stat.exists
+  copy:
+    src: "{{ hieradata }}/{{ hieraenvironment }}/{{ item }}"
+    dest: "{{ hieradata }}/{{ hieraenvironment }}/{{ item }}"
+    mode: 0600
+  with_together:
+    - hiera_file_paths
+    - st.results
 - name: run puppet
   puppet:
     puppetmaster: "{{ puppetmaster|default(omit) }}"
