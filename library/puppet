@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright (c) 2014 Hewlett-Packard Development Company, L.P.
+# Copyright (c) 2015 Hewlett-Packard Development Company, L.P.
 #
 # This module is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,14 +18,15 @@
 import json
 import os
 import pipes
+import stat
 
 DOCUMENTATION = '''
 ---
 module: puppet
 short_description: Runs puppet
 description:
-  - Runs I(puppet) agent in a reliable manner
-version_added: "1.5.6"
+  - Runs I(puppet) agent or apply in a reliable manner
+version_added: "2.0"
 options:
   timeout:
     description:
@@ -35,7 +36,13 @@ options:
   puppetmaster:
     description:
       - The hostname of the puppetmaster to contact.
-    required: true
+    required: false
+    default: None
+  manifest:
+    desciption:
+      - Path to the manifest file to run puppet apply on.
+    required: false
+    default: None
   show_diff:
     description:
       - Should puppet return diffs of changes applied. Defaults to off to avoid leaking secret changes by default.
@@ -52,31 +59,24 @@ options:
       - Basename of the facter output file
     required: false
     default: ansible
-  hiera:
-    description:
-      - A dict of values to write to a local hiera file
+  environment:
+    desciption:
+      - Puppet environment to be used.
     required: false
     default: None
-  hiera_datadir:
-    description:
-      - Hiera's data dir
-    required: false
-    default: /etc/puppet/hieradata
-  hiera_basename:
-    desciption:
-      - Basename of the hiera output file
-    required: false
-    default: ansible
 requirements: [ puppet ]
-author: Monty Taylor
+author: "Monty Taylor (@emonty)"
 '''
 
 EXAMPLES = '''
-# Run puppet and fail if anything goes wrong
+# Run puppet agent and fail if anything goes wrong
 - puppet
 
 # Run puppet and timeout in 5 minutes
 - puppet: timeout=5m
+
+# Run puppet using a different environment
+- puppet: environment=testing
 '''
 
 
@@ -91,25 +91,33 @@ def _write_structured_data(basedir, basename, data):
     if not os.path.exists(basedir):
         os.makedirs(basedir)
     file_path = os.path.join(basedir, "{0}.json".format(basename))
-    with os.fdopen(
-            os.open(file_path, os.O_CREAT | os.O_WRONLY, 0o600),
-            'w') as out_file:
-        out_file.write(json.dumps(data).encode('utf8'))
+    # This is more complex than you might normally expect because we want to
+    # open the file with only u+rw set. Also, we use the stat constants
+    # because ansible still supports python 2.4 and the octal syntax changed
+    out_file = os.fdopen(
+        os.open(
+            file_path, os.O_CREAT | os.O_WRONLY,
+            stat.S_IRUSR | stat.S_IWUSR), 'w')
+    out_file.write(json.dumps(data).encode('utf8'))
+    out_file.close()
 
 
 def main():
     module = AnsibleModule(
         argument_spec=dict(
             timeout=dict(default="30m"),
-            puppetmaster=dict(required=True),
+            puppetmaster=dict(required=False, default=None),
+            manifest=dict(required=False, default=None),
             show_diff=dict(
                 default=False, aliases=['show-diff'], type='bool'),
             facts=dict(default=None),
             facter_basename=dict(default='ansible'),
-            hiera=dict(default=None),
-            hiera_datadir=dict(default='/etc/puppet/hieradata'),
-            hiera_basename=dict(default='ansible'),
+            environment=dict(required=False, default=None),
         ),
+        supports_check_mode=True,
+        mutually_exclusive=[
+            ('puppetmaster', 'manifest'),
+        ],
     )
     p = module.params
 
@@ -120,37 +128,57 @@ def main():
         module.fail_json(
             msg="Could not find puppet. Please ensure it is installed.")
 
+    if p['manifest']:
+        if not os.path.exists(p['manifest']):
+            module.fail_json(
+                msg="Manifest file %(manifest)s not found." % dict(
+                    manifest=p['manifest']))
+
     # Check if puppet is disabled here
-    rc, stdout, stderr = module.run_command(PUPPET_CMD + " agent "
-                                            "--configprint "
-                                            "agent_disabled_lockfile")
-    if os.path.exists(stdout.strip()):
-        module.fail_json(
-            msg="Puppet agent is administratively disabled.", disabled=True)
-    elif rc != 0:
-        module.fail_json(
-            msg="Puppet agent state could not be determined.")
+    if not p['manifest']:
+        rc, stdout, stderr = module.run_command(
+            PUPPET_CMD + " config print agent_disabled_lockfile")
+        if os.path.exists(stdout.strip()):
+            module.fail_json(
+                msg="Puppet agent is administratively disabled.", disabled=True)
+        elif rc != 0:
+            module.fail_json(
+                msg="Puppet agent state could not be determined.")
 
-    if module.params['hiera']:
-        _write_structured_data(
-            module.params['hiera_datadir'],
-            module.params['hiera_basename'],
-            module.params['hiera'])
-
-    if module.params['facts']:
+    if module.params['facts'] and not module.check_mode:
         _write_structured_data(
             _get_facter_dir(),
             module.params['facter_basename'],
             module.params['facts'])
 
-    cmd = ("timeout -s 9 %(timeout)s %(puppet_cmd)s agent --onetime"
-           " --server %(puppetmaster)s"
-           " --ignorecache --no-daemonize --no-usecacheonfailure --no-splay"
-           " --detailed-exitcodes --verbose") % dict(
-               timeout=pipes.quote(p['timeout']), puppet_cmd=PUPPET_CMD,
-               puppetmaster=pipes.quote(p['puppetmaster']))
-    if p['show_diff']:
-        cmd += " --show-diff"
+    base_cmd = "timeout -s 9 %(timeout)s %(puppet_cmd)s" % dict(
+        timeout=pipes.quote(p['timeout']), puppet_cmd=PUPPET_CMD)
+
+    if not p['manifest']:
+        cmd = ("%(base_cmd)s agent --onetime"
+               " --ignorecache --no-daemonize --no-usecacheonfailure --no-splay"
+               " --detailed-exitcodes --verbose") % dict(
+                   base_cmd=base_cmd,
+                   )
+        if p['puppetmaster']:
+            cmd += " -- server %s" % pipes.quote(p['puppetmaster'])
+        if p['show_diff']:
+            cmd += " --show-diff"
+        if p['environment']:
+            cmd += " --environment '%s'" % p['environment']
+        if module.check_mode:
+            cmd += " --noop"
+        else:
+            cmd += " --no-noop"
+    else:
+        cmd = "%s apply --detailed-exitcodes " % base_cmd
+        if p['environment']:
+            cmd += "--environment '%s' " % p['environment']
+        if module.check_mode:
+            cmd += "--noop "
+        else:
+            cmd += "--no-noop "
+        cmd += pipes.quote(p['manifest'])
     rc, stdout, stderr = module.run_command(cmd)
 
     if rc == 0:
