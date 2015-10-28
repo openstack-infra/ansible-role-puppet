@@ -39,7 +39,7 @@ options:
     required: false
     default: None
   manifest:
-    desciption:
+    description:
       - Path to the manifest file to run puppet apply on.
     required: false
     default: None
@@ -55,12 +55,12 @@ options:
     required: false
     default: None
   facter_basename:
-    desciption:
+    description:
       - Basename of the facter output file
     required: false
     default: ansible
   environment:
-    desciption:
+    description:
       - Puppet environment to be used.
     required: false
     default: None
