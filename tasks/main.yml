@@ -3,6 +3,6 @@
   puppet:
     puppetmaster: "{{ puppetmaster|default(omit) }}"
     manifest: "{{ manifest|default(omit) }}"
-    show_diff: "{{ show_diff|default(omit) }}"
+    show_diff: "{{ show_diff|default(false) }}"
     facts: "{{ facts|default(omit) }}"
     facter_basename: "{{ facter_basename|default(omit) }}"
