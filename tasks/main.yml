@@ -11,17 +11,21 @@
     paths: /var/lib/puppet/reports/{{ ansible_fqdn }}
     patterns: *yaml
   register: files
+  when: manifest is defined
 - name: set log filename
   set_fact: puppet_logfile="{{ files.files|map(attribute='path')|sort|last }}"
+  when: manifest is defined
 - name: fetch file
   synchronize:
     mode: pull
     src: "{{ puppet_logfile }}"
     dest: /var/lib/puppet/reports/{{ ansible_fqdn }}
-- name: generate facts
-  shell: "facter -j > /var/lib/puppet/reports/{{ ansible_fqdn }}/facts.json"
-- name: fetch facts
-  synchronize:
-    mode: pull
-    src: /var/lib/puppet/reports/{{ ansible_fqdn }}/facts.json
-    dest: /var/lib/puppet/reports/{{ ansible_fqdn }}
+  when: manifest is defined
+- name: post facts
+  puppet_post_puppetdb:
+    puppetdb: "{{ puppetdb }}"
+    hostvars: hostvars[inventory_hostname]
+    logfile: "{{ puppet_logfile }}"
+  delegate_to: localhost
+  connection: local
+  when: puppetdb is defined
