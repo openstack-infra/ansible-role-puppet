@@ -6,3 +6,22 @@
     show_diff: "{{ show_diff|default(false) }}"
     facts: "{{ facts|default(omit) }}"
     facter_basename: "{{ facter_basename|default(omit) }}"
+- name: find logs
+  find:
+    paths: /var/lib/puppet/reports/{{ ansible_fqdn }}
+    patterns: *yaml
+  register: files
+- name: set log filename
+  set_fact: puppet_logfile="{{ files.files|map(attribute='path')|sort|last }}"
+- name: fetch file
+  synchronize:
+    mode: pull
+    src: "{{ puppet_logfile }}"
+    dest: /var/lib/puppet/reports/{{ ansible_fqdn }}
+- name: generate facts
+  shell: "facter -j > /var/lib/puppet/reports/{{ ansible_fqdn }}/facts.json"
+- name: fetch facts
+  synchronize:
+    mode: pull
+    src: /var/lib/puppet/reports/{{ ansible_fqdn }}/facts.json
+    dest: /var/lib/puppet/reports/{{ ansible_fqdn }}
