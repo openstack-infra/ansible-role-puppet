@@ -1,0 +1,105 @@
+#!/usr/bin/python
+
+# Copyright (c) 2015 IBM
+#
+# This module is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This software is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this software.  If not, see <http://www.gnu.org/licenses/>.
+
+import json
+import requests
+
+DOCUMENTATION = '''
+---
+module: puppet_post_puppetdb
+short_description: Posts facts and logfile to a puppetdb server
+description:
+  - Posts facts and logfile to a puppetdb server
+version_added: "2.0"
+options:
+  puppetdb:
+    description:
+      - The hostname of the puppetdb server to post to
+    required: true
+  hostvars:
+    desciption:
+      - Ansible hostvars to pull facts from
+    required: true
+  logfile:
+    desciption:
+      - Ansible hostvars to pull facts from
+    required: true
+  environment:
+    desciption:
+      - Puppet environment to be used.
+    required: false
+    default: production
+requirements: [ puppet ]
+author: "Monty Taylor (@emonty)"
+'''
+
+EXAMPLES = '''
+# Post the facter facts to puppetdb.openstack.org
+- puppet_post_facts:
+    hostvars: hostvars[inventory_hostname]
+    puppetdb: puppetdb.openstack.org
+    logfile: /var/lib/puppet/reports/review.openstack.org/20151030.json
+'''
+
+
+def main():
+    module = AnsibleModule(
+        argument_spec=dict(
+            puppetdb=dict(required=True),
+            hostvars=dict(required=True),
+            logfile=dict(required=True),
+            environment=dict(required=False, default='production'),
+        ),
+        supports_check_mode=True,
+    )
+    p = module.params
+
+    facts = {}
+    for k, v in p['hostvars'].items():
+        if k.startswith('facter_'):
+            facts[k[7:]] = v
+    payload = {
+        "command": "replace facts",
+        "version": 3,
+        "payload": {
+            "name": facts.get('fqdn', p['hostvars']['inventory_hostname']),
+            "environment": p['environment'],
+            "producer-timestamp": "2015-01-01",
+            "values": facts }}
+
+    r = requests.post(p['puppetdb'], json=payload)
+    if r.status_code != 200:
+        module.fail_json(
+            rc=r.status_code,
+            msg="Failed to post facts to {puppetdb}".format(
+                puppetdb=p['puppetdb']))
+
+    log_data = json.load(open(p['logfile'], 'r'))
+    r = requests.post(p['puppetdb'], json=log_data)
+    if r.status_code != 200:
+        module.fail_json(
+            rc=r.status_code,
+            msg="Failed to post log data to {puppetdb}".format(
+                puppetdb=p['puppetdb']))
+
+    # success with changes
+    module.exit_json(rc=0, changed=True)
+
+# import module snippets
+from ansible.module_utils.basic import *
+
+main()
