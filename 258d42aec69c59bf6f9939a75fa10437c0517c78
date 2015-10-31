@@ -1,0 +1,14 @@
+Code-Review+2: Monty Taylor <mordred@inaugust.com>
+Workflow+1: Monty Taylor <mordred@inaugust.com>
+Verified+2: Jenkins
+Code-Review+1: Philip Marc Schwartz <pschwar@linux.vnet.ibm.com>
+Code-Review+1: matthew wagoner <zxkuqyb@gmail.com>
+Code-Review+2: yolanda.robla <info@ysoft.biz>
+Code-Review+1: Anderson Mesquita <andersonvom@gmail.com>
+Code-Review+1: Craige McWhirter <craige@mcwhirter.io>
+Code-Review+1: venkatamahesh <venkatamaheshkotha@gmail.com>
+Submitted-by: Jenkins
+Submitted-at: Sat, 31 Oct 2015 01:15:36 +0000
+Reviewed-on: https://review.openstack.org/239797
+Project: openstack-infra/ansible-puppet
+Branch: refs/heads/master
