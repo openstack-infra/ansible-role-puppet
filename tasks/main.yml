@@ -1,4 +1,8 @@
 ---
+- name: setup config files
+  when: manage_config
+  puppet:
+    config
 - name: run puppet
   puppet:
     puppetmaster: "{{ puppetmaster|default(omit) }}"
