@@ -1,0 +1,33 @@
+---
+# Create our config
+- name: Create puppet.conf from template
+  template: >
+    src="puppet.conf.j2"
+    dest="/etc/puppet/puppet.conf"
+    owner=root group=root mode=0644
+
+- name: Create hiera.yaml from template
+  template: >
+    src="hiera.yaml.j2"
+    dest="/etc/puppet/hiera.yaml"
+    owner=root group=root mode=0644
+
+- name: symlink hiera config files together
+  file: >
+    src="/etc/puppet/hiera.yaml"
+    dest="/etc/hiera.yaml"
+    owner=root group=root state=link force=yes
+
+- name: create environment directory
+  file: >
+    path=/etc/puppet/environments/{{ puppet_environment }}
+    state=directory
+    owner=root group=root mode=0755
+  when: puppet_environment is defined
+
+- name: create environment.conf from template
+  template: >
+    src="environment.conf.j2"
+    dest="/etc/puppet/environments/{{ puppet_environment }}/environment.conf"
+    owner=root group=root mode=0644
+  when: puppet_environment is defined
