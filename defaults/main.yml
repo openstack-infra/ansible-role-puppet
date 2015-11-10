@@ -1,2 +1,12 @@
 ---
 # defaults file for ansible-puppet
+#
+
+manage_config: False
+puppet_server: puppet
+certname: {{ ansible_fqdn }}
+puppet_data_binding_terminus: hiera
+reports: store
+puppet_basemodulepath: '$confdir/modules:/usr/share/puppet/modules'
+puppet_environmentpath: '$confdir/enviroments'
+
