@@ -1,2 +1,22 @@
 ---
 # defaults file for ansible-puppet
+#
+
+manage_config: False
+puppet_server: puppet
+certname: "{{ ansible_fqdn }}"
+puppet_data_binding_terminus: hiera
+puppet_reports: store
+puppet_basemodulepath: '$confdir/modules:/usr/share/puppet/modules'
+puppet_environmentpath: '$confdir/environments'
+puppet_hiera_datadir: '/etc/puppet/hieradata'
+puppet_hiera_hierarchy:
+  - '# Use private hieradata first'
+  - '- "hieradata/%{::environment}/fqdn/%{::fqdn}"'
+  - '- "hieradata/%{::environment}/group/%{group}" # no :: because group is set at nodescope'
+  - '- "hieradata/%{::environment}/common"'
+  - '# Use public hieradata second, also be environmentally aware'
+  - '- "%{::environment}/fqdn/%{::fqdn}"'
+  - '- "%{::environment}/group/%{group}" # no :: because group is set at nodescope'
+  - '- "%{::environment}/common"'
+puppet_environment: production
