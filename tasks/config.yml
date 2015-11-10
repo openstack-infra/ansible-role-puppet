@@ -1,0 +1,15 @@
+---
+# Create our config
+action:
+  - name: Create puppet.conf from template
+    template: >
+      src="puppet.conf.j2"
+      dest="/etc/puppet/puppet.conf"
+      owner=root group=root mode=0644
+  - name: Create hiera.yaml from template
+    template: >
+      src="hiera.yaml.j2"
+      dest="/etc/puppet/hiera.yaml"
+      owner=root group=root mode=0644
+  - file: src=/etc/puppet/hiera.yaml dest=/etc/hiera.yaml owner=root group=root state=link
+

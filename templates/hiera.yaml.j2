@@ -1,0 +1,11 @@
+---
+:hierarchy:
+{% for item in puppet_hiera_hierarchy %}
+  {{ item }}
+{% endfor %}
+:backends:
+  - yaml
+:yaml:
+  :datadir: "{{ puppet_hiera_datadir }}"
+
+
