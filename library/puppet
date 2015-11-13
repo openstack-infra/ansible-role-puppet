@@ -45,7 +45,9 @@ options:
     default: None
   show_diff:
     description:
-      - Should puppet return diffs of changes applied. Defaults to off to avoid leaking secret changes by default.
+      - >
+       Should puppet return diffs of changes applied. Defaults to off to
+       avoid leaking secret changes by default.
     required: false
     default: no
     choices: [ "yes", "no" ]
@@ -140,7 +142,8 @@ def main():
             PUPPET_CMD + " config print agent_disabled_lockfile")
         if os.path.exists(stdout.strip()):
             module.fail_json(
-                msg="Puppet agent is administratively disabled.", disabled=True)
+                msg="Puppet agent is administratively disabled.",
+                disabled=True)
         elif rc != 0:
             module.fail_json(
                 msg="Puppet agent state could not be determined.")
@@ -156,8 +159,8 @@ def main():
 
     if not p['manifest']:
         cmd = ("%(base_cmd)s agent --onetime"
-               " --ignorecache --no-daemonize --no-usecacheonfailure --no-splay"
-               " --detailed-exitcodes --verbose") % dict(
+               " --ignorecache --no-daemonize --no-usecacheonfailure"
+               "--no-splay --detailed-exitcodes --verbose") % dict(
                    base_cmd=base_cmd,
                    )
         if p['puppetmaster']:
