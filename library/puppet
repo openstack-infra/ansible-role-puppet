@@ -160,7 +160,7 @@ def main():
     if not p['manifest']:
         cmd = ("%(base_cmd)s agent --onetime"
                " --ignorecache --no-daemonize --no-usecacheonfailure"
-               "--no-splay --detailed-exitcodes --verbose") % dict(
+               " --no-splay --detailed-exitcodes --verbose") % dict(
                    base_cmd=base_cmd,
                    )
         if p['puppetmaster']:
