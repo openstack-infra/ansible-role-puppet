@@ -1,4 +1,12 @@
 ---
+- name: install system-config
+  git:
+    dest: /opt/system-config/production
+    repo: https://git.openstack.org/openstack-infra/system-config
+  when: "{{ manifest|bool }}"
+- name: install modules
+  shell: /opt/system-config/production/install_modules.sh
+  when: "{{ manifest|bool }}"
 - name: run puppet
   puppet:
     puppetmaster: "{{ puppetmaster|default(omit) }}"
