@@ -1,52 +1,48 @@
 ---
-- name: ensure hiera datadir
-  file:
-    state: directory
-    path: "{{ hieradata }}/{{ hieraenvironment }}"
-    owner: root
-    group: root
-    mode: 0700
+- block:
+  - name: ensure hiera datadir
+    file:
+      state: directory
+      path: "{{ hieradata }}/{{ hieraenvironment }}"
+      owner: root
+      group: root
+      mode: 0700
+  - name: ensure hiera datadir - fqdn
+    file:
+      state: directory
+      path: "{{ hieradata }}/{{ hieraenvironment }}/fqdn"
+      owner: root
+      group: root
+      mode: 0700
+  - name: ensure hiera datadir - group
+    file:
+      state: directory
+      path: "{{ hieradata }}/{{ hieraenvironment }}/group"
+      owner: root
+      group: root
+      mode: 0700
+  - name: make file list
+    puppet_get_hiera_file_list:
+      fqdn: "{{ ansible_fqdn }}"
+      groups: "{{ hostvars[inventory_hostname].group_names }}"
+    delegate_to: localhost
+    register: hiera_file_paths
+  - name: find which files exist
+    stat:
+      path: "{{ hieradata }}/{{ hieraenvironment }}/{{ item }}"
+    register: st
+    with_items: hiera_file_paths.paths_dict.paths
+    delegate_to: localhost
+  - name: copy hiera files
+    when: item.1.stat.exists
+    copy:
+      src: "{{ hieradata }}/{{ hieraenvironment }}/{{ item.1.item }}"
+      dest: "{{ hieradata }}/{{ hieraenvironment }}/{{ item.1.item }}"
+      mode: 0600
+    with_together:
+      - hiera_file_paths.paths_dict.paths
+      - st.results
   when: copy_hieradata
-- name: ensure hiera datadir - fqdn
-  file:
-    state: directory
-    path: "{{ hieradata }}/{{ hieraenvironment }}/fqdn"
-    owner: root
-    group: root
-    mode: 0700
-  when: copy_hieradata
-- name: ensure hiera datadir - group
-  file:
-    state: directory
-    path: "{{ hieradata }}/{{ hieraenvironment }}/group"
-    owner: root
-    group: root
-    mode: 0700
-  when: copy_hieradata
-- name: make file list
-  puppet_get_hiera_file_list:
-    fqdn: "{{ ansible_fqdn }}"
-    groups: "{{ hostvars[inventory_hostname].group_names }}"
-  when: copy_hieradata
-  delegate_to: localhost
-  register: hiera_file_paths
-- name: find which files exist
-  stat:
-    path: "{{ hieradata }}/{{ hieraenvironment }}/{{ item }}"
-  register: st
-  with_items: hiera_file_paths.paths_dict.paths
-  delegate_to: localhost
-  when: copy_hieradata
-- debug: msg="System {{st}}"
-- name: copy hiera files
-  when: copy_hieradata and item.1.stat.exists
-  copy:
-    src: "{{ hieradata }}/{{ hieraenvironment }}/{{ item.1.item }}"
-    dest: "{{ hieradata }}/{{ hieraenvironment }}/{{ item.1.item }}"
-    mode: 0600
-  with_together:
-    - hiera_file_paths.paths_dict.paths
-    - st.results
 - name: run puppet
   puppet:
     puppetmaster: "{{ puppetmaster|default(omit) }}"
