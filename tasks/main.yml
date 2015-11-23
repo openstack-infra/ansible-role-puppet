@@ -27,8 +27,9 @@
   puppet_get_hiera_file_list:
     fqdn: "{{ ansible_fqdn }}"
     groups: "{{ hostvars[inventory_hostname].group_names }}"
+  when: copy_hieradata
+  delegate_to: localhost
   register: hiera_file_paths
-- debug: msg="System {{hiera_file_paths.paths_dict.paths}}"
 - name: find which files exist
   stat:
     path: "{{ hieradata }}/{{ hieraenvironment }}/{{ item }}"
