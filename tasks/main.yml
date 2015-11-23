@@ -30,7 +30,6 @@
   when: copy_hieradata
   delegate_to: localhost
   register: hiera_file_paths
-- debug: msg="System {{hiera_file_paths.paths_dict.paths}}"
 - name: find which files exist
   stat:
     path: "{{ hieradata }}/{{ hieraenvironment }}/{{ item }}"
@@ -38,7 +37,6 @@
   with_items: hiera_file_paths.paths_dict.paths
   delegate_to: localhost
   when: copy_hieradata
-- debug: msg="System {{st}}"
 - name: copy hiera files
   when: copy_hieradata and item.1.stat.exists
   copy:
