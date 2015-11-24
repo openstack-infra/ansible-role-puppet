@@ -2,4 +2,3 @@
 # vars file for ansible-puppet
 hieradata: /etc/puppet/hieradata
 hieraenvironment: production
-copy_hieradata: False
