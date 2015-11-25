@@ -92,21 +92,29 @@ def main():
     for k, v in p['hostvars'].items():
         if k.startswith('facter_'):
             facts[k[7:]] = v
-    payload = {
-        "command": "replace facts",
-        "version": 3,
-        "payload": {
-            "name": fqdn,
-            "environment": p['environment'],
-            "producer-timestamp": timestamp,
-            "values": facts }}
+    for k, v in p['hostvars'].items():
+        if not k.startswith('facter_'):
+            # Go ahead and set the non-facter facts that ansible has gathered
+            # too - but let facter facts with the same name win
+            facts.setdefault(k, v)
 
-    r = requests.post(endpoint, json=payload, **requests_kwargs)
-    if r.status_code != 200:
-        module.fail_json(
-            rc=r.status_code,
-            msg="Failed to post facts to {puppetdb}".format(
-                puppetdb=p['puppetdb']))
+    if facts:
+        # Don't post facts update if we don't have facts
+        payload = {
+            "command": "replace facts",
+            "version": 3,
+            "payload": {
+                "name": fqdn,
+                "environment": p['environment'],
+                "producer-timestamp": timestamp,
+                "values": facts }}
+
+        r = requests.post(endpoint, json=payload, **requests_kwargs)
+        if r.status_code != 200:
+            module.fail_json(
+                rc=r.status_code,
+                msg="Failed to post facts to {puppetdb}".format(
+                    puppetdb=p['puppetdb']))
 
     log_data = json.load(open(p['logfile'], 'r'))
     r = requests.post(endpoint, json=log_data, **requests_kwargs)
