@@ -164,7 +164,7 @@ def main():
                    base_cmd=base_cmd,
                    )
         if p['puppetmaster']:
-            cmd += " -- server %s" % pipes.quote(p['puppetmaster'])
+            cmd += " --server %s" % pipes.quote(p['puppetmaster'])
         if p['show_diff']:
             cmd += " --show-diff"
         if p['environment']:
