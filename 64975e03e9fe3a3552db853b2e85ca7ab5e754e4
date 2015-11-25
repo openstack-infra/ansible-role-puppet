@@ -1,0 +1,8 @@
+Code-Review+2: Monty Taylor <mordred@inaugust.com>
+Workflow+1: Monty Taylor <mordred@inaugust.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Wed, 25 Nov 2015 13:21:24 +0000
+Reviewed-on: https://review.openstack.org/249775
+Project: openstack-infra/ansible-puppet
+Branch: refs/heads/master
