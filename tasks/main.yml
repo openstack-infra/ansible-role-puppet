@@ -6,7 +6,7 @@
     owner: root
     group: root
     mode: 0700
-  when: copy_hieradata
+  when: copy_hieradata is defined and copy_hieradata
 - name: ensure hiera datadir - fqdn
   file:
     state: directory
@@ -14,7 +14,7 @@
     owner: root
     group: root
     mode: 0700
-  when: copy_hieradata
+  when: copy_hieradata is defined and copy_hieradata
 - name: ensure hiera datadir - group
   file:
     state: directory
@@ -22,12 +22,12 @@
     owner: root
     group: root
     mode: 0700
-  when: copy_hieradata
+  when: copy_hieradata is defined and copy_hieradata
 - name: make file list
   puppet_get_hiera_file_list:
     fqdn: "{{ inventory_hostname }}"
     groups: "{{ hostvars[inventory_hostname].group_names }}"
-  when: copy_hieradata
+  when: copy_hieradata is defined and copy_hieradata
   delegate_to: localhost
   register: hiera_file_paths
 - name: find which files exist
@@ -36,9 +36,9 @@
   register: st
   with_items: hiera_file_paths.paths_dict.paths
   delegate_to: localhost
-  when: copy_hieradata
+  when: copy_hieradata is defined and copy_hieradata
 - name: copy hiera files
-  when: copy_hieradata and item.1.stat.exists
+  when: copy_hieradata is defined and copy_hieradataand item.1.stat.exists
   copy:
     src: "{{ hieradata }}/{{ hieraenvironment }}/{{ item.1.item }}"
     dest: "{{ hieradata }}/{{ hieraenvironment }}/{{ item.1.item }}"
