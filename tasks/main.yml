@@ -38,7 +38,7 @@
   delegate_to: localhost
   when: copy_hieradata is defined and copy_hieradata
 - name: copy hiera files
-  when: copy_hieradata is defined and copy_hieradataand item.1.stat.exists
+  when: copy_hieradata is defined and copy_hieradata and item.1.stat.exists
   copy:
     src: "{{ hieradata }}/{{ hieraenvironment }}/{{ item.1.item }}"
     dest: "{{ hieradata }}/{{ hieraenvironment }}/{{ item.1.item }}"
