@@ -130,6 +130,9 @@ def main():
         module.fail_json(
             msg="Could not find puppet. Please ensure it is installed.")
 
+    global TIMEOUT_CMD
+    TIMEOUT_CMD = module.get_bin_path("timeout", False)
+
     if p['manifest']:
         if not os.path.exists(p['manifest']):
             module.fail_json(
@@ -154,8 +157,13 @@ def main():
             module.params['facter_basename'],
             module.params['facts'])
 
-    base_cmd = "timeout -s 9 %(timeout)s %(puppet_cmd)s" % dict(
-        timeout=pipes.quote(p['timeout']), puppet_cmd=PUPPET_CMD)
+    if TIMEOUT_CMD:
+        base_cmd = "%(timeout_cmd)s -s 9 %(timeout)s %(puppet_cmd)s" % dict(
+            timeout_cmd=TIMEOUT_CMD,
+            timeout=pipes.quote(p['timeout']),
+            puppet_cmd=PUPPET_CMD)
+    else:
+        base_cmd = PUPPET_CMD
 
     if not p['manifest']:
         cmd = ("%(base_cmd)s agent --onetime"
