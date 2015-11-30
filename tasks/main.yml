@@ -52,6 +52,25 @@
     - hiera_file_paths.paths_dict.paths
     - st.results
 
+- name: copy puppet modules
+  synchronize:
+    src: "{{ manifest_base }}/{{ hieraenvironment }}"
+    dest: "{{ manifest_base }}"
+  when: copy_puppet is defined and copy_puppet and manifest_base is defined
+
+- name: copy system puppet modules
+  synchronize:
+    src: /etc/puppet/modules
+    dest: /etc/puppet
+  when: copy_puppet is defined and copy_puppet and manifest_base is defined
+
+- name: Ensure hieradata manifest link is present
+  file:
+    src: "{{ hieradata }}"
+    dest: "{{ manifest_base }}/hieradata"
+    state: link
+  when: copy_hieradata is defined and copy_hieradata
+
 - name: run puppet
   puppet:
     puppetmaster: "{{ puppetmaster|default(omit) }}"
