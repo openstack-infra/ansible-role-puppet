@@ -7,6 +7,7 @@
     group: root
     mode: 0700
   when: copy_hieradata is defined and copy_hieradata
+
 - name: ensure hiera datadir - fqdn
   file:
     state: directory
@@ -15,6 +16,7 @@
     group: root
     mode: 0700
   when: copy_hieradata is defined and copy_hieradata
+
 - name: ensure hiera datadir - group
   file:
     state: directory
@@ -23,6 +25,7 @@
     group: root
     mode: 0700
   when: copy_hieradata is defined and copy_hieradata
+
 - name: make file list
   puppet_get_hiera_file_list:
     fqdn: "{{ ansible_fqdn }}"
@@ -30,6 +33,7 @@
   when: copy_hieradata is defined and copy_hieradata
   delegate_to: localhost
   register: hiera_file_paths
+
 - name: find which files exist
   stat:
     path: "{{ hieradata }}/{{ hieraenvironment }}/{{ item }}"
@@ -37,6 +41,7 @@
   with_items: hiera_file_paths.paths_dict.paths
   delegate_to: localhost
   when: copy_hieradata is defined and copy_hieradata
+
 - name: copy hiera files
   when: copy_hieradata is defined and copy_hieradata and item.1.stat.exists
   copy:
@@ -46,6 +51,7 @@
   with_together:
     - hiera_file_paths.paths_dict.paths
     - st.results
+
 - name: run puppet
   puppet:
     puppetmaster: "{{ puppetmaster|default(omit) }}"
@@ -53,19 +59,23 @@
     show_diff: "{{ show_diff|default(false) }}"
     facts: "{{ facts|default(omit) }}"
     facter_basename: "{{ facter_basename|default(omit) }}"
+
 - name: find logs
   shell: "ls -tr /var/lib/puppet/reports/{{ ansible_fqdn }}/*_puppetdb.json"
   register: files
   when: puppetdb is defined
+
 - name: set log filename
   set_fact: puppet_logfile="{{ files.stdout_lines|sort|last }}"
   when: puppetdb is defined
+
 - name: fetch file
   synchronize:
     mode: pull
     src: "{{ puppet_logfile }}"
     dest: /var/lib/puppet/reports/{{ ansible_fqdn }}
   when: puppetdb is defined
+
 - name: post facts
   puppet_post_puppetdb:
     puppetdb: "{{ puppetdb }}"
