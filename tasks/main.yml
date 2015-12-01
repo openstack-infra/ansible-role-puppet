@@ -25,7 +25,7 @@
   when: copy_hieradata is defined and copy_hieradata
 - name: make file list
   puppet_get_hiera_file_list:
-    fqdn: "{{ inventory_hostname }}"
+    fqdn: "{{ ansible_fqdn }}"
     groups: "{{ hostvars[inventory_hostname].group_names }}"
   when: copy_hieradata is defined and copy_hieradata
   delegate_to: localhost
@@ -54,7 +54,7 @@
     facts: "{{ facts|default(omit) }}"
     facter_basename: "{{ facter_basename|default(omit) }}"
 - name: find logs
-  shell: "ls -tr /var/lib/puppet/reports/{{ inventory_hostname }}/*_puppetdb.json"
+  shell: "ls -tr /var/lib/puppet/reports/{{ ansible_fqdn }}/*_puppetdb.json"
   register: files
   when: puppetdb is defined
 - name: set log filename
@@ -64,14 +64,14 @@
   synchronize:
     mode: pull
     src: "{{ puppet_logfile }}"
-    dest: /var/lib/puppet/reports/{{ inventory_hostname }}
+    dest: /var/lib/puppet/reports/{{ ansible_fqdn }}
   when: puppetdb is defined
 - name: post facts
   puppet_post_puppetdb:
     puppetdb: "{{ puppetdb }}"
     hostvars: "{{ hostvars[inventory_hostname] }}"
     logfile: "{{ puppet_logfile }}"
-    whoami: "{{ whoami }}"
+    whoami: "{{ ansible_fqdn }}"
   delegate_to: localhost
   connection: local
   when: puppetdb is defined
