@@ -1,0 +1,9 @@
+Workflow+1: Monty Taylor <mordred@inaugust.com>
+Verified+2: Jenkins
+Code-Review+2: Clark Boylan <cboylan@sapwetik.org>
+Code-Review+2: yolanda.robla <info@ysoft.biz>
+Submitted-by: Jenkins
+Submitted-at: Tue, 01 Dec 2015 16:25:39 +0000
+Reviewed-on: https://review.openstack.org/251944
+Project: openstack-infra/ansible-puppet
+Branch: refs/heads/master
