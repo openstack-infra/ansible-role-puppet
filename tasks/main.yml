@@ -1,28 +1,16 @@
 ---
 - block:
-  - name: ensure hiera datadir
+  - name: ensure hiera directory
     file:
       state: directory
-      path: "{{ hieradata }}/{{ hieraenvironment }}"
+      path: "{{ hieradata }}/{{ hieraenvironment }}/{{ item }}"
       owner: root
       group: root
       mode: 0700
-
-  - name: ensure hiera datadir - fqdn
-    file:
-      state: directory
-      path: "{{ hieradata }}/{{ hieraenvironment }}/fqdn"
-      owner: root
-      group: root
-      mode: 0700
-
-  - name: ensure hiera datadir - group
-    file:
-      state: directory
-      path: "{{ hieradata }}/{{ hieraenvironment }}/group"
-      owner: root
-      group: root
-      mode: 0700
+    when: copy_hieradata is defined and copy_hieradata
+    with_items:
+    - fqdn
+    - group
 
   - name: make file list
     puppet_get_hiera_file_list:
