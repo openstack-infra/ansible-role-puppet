@@ -54,7 +54,7 @@
       dest: "{{ manifest_base }}/hieradata"
       state: link
 
-  when: copy_hieradata is defined and copy_hieradata
+  when: copy_hieradata
 
 - block:
   - name: copy puppet modules
@@ -67,7 +67,9 @@
       src: /etc/puppet/modules
       dest: /etc/puppet
 
-  when: copy_puppet is defined and copy_puppet and manifest_base is defined
+  when:
+  - copy_puppet
+  - manifest_base is defined
 
 - name: run puppet
   puppet:
