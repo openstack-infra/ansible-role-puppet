@@ -30,6 +30,10 @@ options:
     description:
     - The groups the host is in
     required: true
+  location:
+    description:
+    - Base hiera location in which to look for files
+    required: true
 requirements: [ ]
 author: Monty Taylor
 '''
@@ -40,13 +44,25 @@ def main():
         argument_spec=dict(
             fqdn=dict(required=True),
             groups=dict(required=True),
+            location=dict(required=True),
         ),
     )
     p = module.params
 
-    module.exit_json(paths_dict = {'paths': [
+    paths = [
         'common.yaml',
-        'fqdn/%s.yaml' % p['fqdn'] ] + ['group/%s.yaml' % f for f in p['groups'] ]})
+        'fqdn/%s.yaml' % p['fqdn'] ]
+    paths = ['group/%s.yaml' % f for f in p['groups'] ]
+    paths.append('common.yaml')
+    paths.append('fqdn/%s.yaml' % p['fqdn'])
+
+    good_paths = []
+    for path in paths:
+        full_path = os.path.join(p['location'], path)
+        if os.path.exists(full_path):
+            good_paths.append(full_path)
+
+    module_exit_json(paths=good_paths)
 
 # import module snippets
 from ansible.module_utils.basic import *
