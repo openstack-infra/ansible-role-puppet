@@ -28,25 +28,16 @@
     puppet_get_hiera_file_list:
       fqdn: "{{ ansible_fqdn }}"
       groups: "{{ hostvars[inventory_hostname].group_names }}"
+      location: "{{ hieradata }}/{{ hieraenvironment }}"
     delegate_to: localhost
     register: hiera_file_paths
 
-  - name: find which files exist
-    stat:
-      path: "{{ hieradata }}/{{ hieraenvironment }}/{{ item }}"
-    register: st
-    with_items: hiera_file_paths.paths_dict.paths
-    delegate_to: localhost
-
   - name: copy hiera files
-    when: item.1.stat.exists
     copy:
-      src: "{{ hieradata }}/{{ hieraenvironment }}/{{ item.1.item }}"
-      dest: "{{ hieradata }}/{{ hieraenvironment }}/{{ item.1.item }}"
+      src: "{{ item }}"
+      dest: "{{ item }}"
       mode: 0600
-    with_together:
-      - hiera_file_paths.paths_dict.paths
-      - st.results
+    with_items: hiera_file_paths.paths
 
   - name: ensure hieradata manifest link is present
     file:
