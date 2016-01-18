@@ -3,7 +3,7 @@
   - name: ensure hiera directory
     file:
       state: directory
-      path: "{{ hieradata }}/{{ hieraenvironment }}/{{ item }}"
+      path: "{{ hieradata }}/{{ puppetenvironment }}/{{ item }}"
       owner: root
       group: root
       mode: 0700
@@ -16,7 +16,7 @@
     puppet_get_hiera_file_list:
       fqdn: "{{ ansible_fqdn }}"
       groups: "{{ hostvars[inventory_hostname].group_names }}"
-      location: "{{ hieradata }}/{{ hieraenvironment }}"
+      location: "{{ hieradata }}/{{ puppetenvironment }}"
     delegate_to: localhost
     register: hiera_file_paths
 
@@ -38,7 +38,7 @@
 - block:
   - name: copy puppet modules
     synchronize:
-      src: "{{ manifest_base }}/{{ hieraenvironment }}"
+      src: "{{ manifest_base }}/{{ puppetenvironment }}"
       dest: "{{ manifest_base }}"
 
   - name: copy system puppet modules
