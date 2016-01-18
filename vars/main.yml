@@ -3,4 +3,4 @@
 copy_hieradata: false
 copy_puppet: false
 hieradata: /etc/puppet/hieradata
-hieraenvironment: production
+puppet_environment: production
