@@ -7,7 +7,6 @@
       owner: root
       group: root
       mode: 0700
-    when: copy_hieradata is defined and copy_hieradata
     with_items:
     - fqdn
     - group
@@ -26,12 +25,14 @@
       dest: "{{ item }}"
       mode: 0600
     with_items: hiera_file_paths.paths
+    when: hiera_file_paths is defined
 
   - name: ensure hieradata manifest link is present
     file:
       src: "{{ hieradata }}"
       dest: "{{ manifest_base }}/hieradata"
       state: link
+    when: manifest_base is defined
 
   when: copy_hieradata
 

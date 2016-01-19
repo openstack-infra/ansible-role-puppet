@@ -62,7 +62,7 @@ def main():
         if os.path.exists(full_path):
             good_paths.append(full_path)
 
-    module_exit_json(paths=good_paths)
+    module.exit_json(paths=good_paths)
 
 # import module snippets
 from ansible.module_utils.basic import *
