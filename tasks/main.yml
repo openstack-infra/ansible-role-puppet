@@ -24,8 +24,7 @@
       src: "{{ item }}"
       dest: "{{ item }}"
       mode: 0600
-    with_items: hiera_file_paths.paths
-    when: hiera_file_paths is defined
+    with_items: hiera_file_paths.paths|default()
 
   - name: ensure hieradata manifest link is present
     file:
