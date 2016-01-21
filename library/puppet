@@ -182,7 +182,7 @@ def main():
         else:
             cmd += " --no-noop"
     else:
-        cmd = "%s apply --detailed-exitcodes " % base_cmd
+        cmd = "%s apply --detailed-exitcodes --logdest syslog" % base_cmd
         if p['environment']:
             cmd += "--environment '%s' " % p['environment']
         if module.check_mode:
@@ -194,7 +194,7 @@ def main():
 
     if rc == 0:
         # success
-        module.exit_json(rc=rc, changed=False, stdout=stdout)
+        module.exit_json(rc=rc, changed=False)
     elif rc == 1:
         # rc==1 could be because it's disabled
         # rc==1 could also mean there was a compilation failure
@@ -205,19 +205,18 @@ def main():
             msg = "puppet did not run"
         module.exit_json(
             rc=rc, disabled=disabled, msg=msg,
-            error=True, stdout=stdout, stderr=stderr)
+            error=True)
     elif rc == 2:
         # success with changes
-        module.exit_json(rc=0, changed=True, stdout=stdout, stderr=stderr)
+        module.exit_json(rc=0, changed=True)
     elif rc == 124:
         # timeout
         module.exit_json(
-            rc=rc, msg="%s timed out" % cmd, stdout=stdout, stderr=stderr)
+            rc=rc, msg="%s timed out" % cmd)
     else:
         # failure
         module.fail_json(
-            rc=rc, msg="%s failed with return code: %d" % (cmd, rc),
-            stdout=stdout, stderr=stderr)
+            rc=rc, msg="%s failed with return code: %d" % (cmd, rc))
 
 # import module snippets
 from ansible.module_utils.basic import *
