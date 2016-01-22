@@ -1,0 +1,12 @@
+Code-Review+1: Anita Kuno <anteaya@anteaya.info>
+Code-Review+1: Sam Yaple <sam@yaple.net>
+Code-Review+2: Monty Taylor <mordred@inaugust.com>
+Code-Review+2: yolanda.robla <info@ysoft.biz>
+Code-Review+2: James E. Blair <corvus@inaugust.com>
+Workflow+1: James E. Blair <corvus@inaugust.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Fri, 22 Jan 2016 23:03:54 +0000
+Reviewed-on: https://review.openstack.org/271057
+Project: openstack-infra/ansible-puppet
+Branch: refs/heads/master
