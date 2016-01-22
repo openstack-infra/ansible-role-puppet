@@ -26,13 +26,6 @@
       mode: 0600
     with_items: hiera_file_paths.paths|default()
 
-  - name: ensure hieradata manifest link is present
-    file:
-      src: "{{ hieradata }}"
-      dest: "{{ manifest_base }}/hieradata"
-      state: link
-    when: manifest_base is defined
-
   when: copy_hieradata
 
 - block:
@@ -40,6 +33,13 @@
     synchronize:
       src: "{{ manifest_base }}/{{ puppet_environment }}"
       dest: "{{ manifest_base }}"
+
+  - name: ensure hieradata manifest link is present
+    file:
+      src: "{{ hieradata }}"
+      dest: "{{ manifest_base }}/hieradata"
+      state: link
+    when: copy_hieradata
 
   - name: copy system puppet modules
     synchronize:
