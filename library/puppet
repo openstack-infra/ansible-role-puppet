@@ -183,7 +183,7 @@ def main():
         else:
             cmd += " --no-noop"
     else:
-        cmd = "%s apply --detailed-exitcodes --logdest syslog" % base_cmd
+        cmd = "%s apply --detailed-exitcodes --logdest syslog " % base_cmd
         if p['environment']:
             cmd += "--environment '%s' " % p['environment']
         if module.check_mode:
