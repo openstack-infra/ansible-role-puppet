@@ -1,0 +1,12 @@
+Code-Review+2: James E. Blair <corvus@inaugust.com>
+Workflow+1: James E. Blair <corvus@inaugust.com>
+Code-Review+2: Jeremy Stanley <fungi@yuggoth.org>
+Workflow+1: Jeremy Stanley <fungi@yuggoth.org>
+Code-Review+2: Spencer Krum <nibz@spencerkrum.com>
+Code-Review+1: Sam Yaple <sam@yaple.net>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Sat, 23 Jan 2016 01:03:54 +0000
+Reviewed-on: https://review.openstack.org/271584
+Project: openstack-infra/ansible-puppet
+Branch: refs/heads/master
