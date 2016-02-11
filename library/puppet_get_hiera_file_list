@@ -49,9 +49,6 @@ def main():
     )
     p = module.params
 
-    paths = [
-        'common.yaml',
-        'fqdn/%s.yaml' % p['fqdn'] ]
     paths = ['group/%s.yaml' % f for f in p['groups'] ]
     paths.append('common.yaml')
     paths.append('fqdn/%s.yaml' % p['fqdn'])
