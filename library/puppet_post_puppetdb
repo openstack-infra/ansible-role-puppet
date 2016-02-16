@@ -81,6 +81,11 @@ def main():
     key = '/var/lib/puppet/ssl/private_keys/{whoami}.pem'.format(whoami=whoami)
     cacert = '/var/lib/puppet/ssl/ca/ca_crt.pem'
     requests_kwargs = dict(cert=(cert, key), verify=cacert)
+
+    # don't post uuid hostnames
+    if re.match('[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}', fqdn):
+        module.exit_json(rc=1, changed=False)
+
     try:
         dt = os.path.basename(p['logfile']).split('_')[0]
         timestamp = "{0}-{1}-{2}".format(dt[0:4], dt[4:6], dt[6:8])
