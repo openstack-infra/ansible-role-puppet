@@ -66,6 +66,10 @@
   - name: set log filename
     set_fact: puppet_logfile="{{ files.stdout_lines|sort|last }}"
 
+  - name: create reports directory
+    file: path=/var/lib/puppet/reports/{{ ansible_fqdn }} owner=root group=root mode=0755 state=directory
+    delegate_to: localhost
+
   - name: fetch file
     synchronize:
       mode: pull
