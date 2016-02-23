@@ -109,6 +109,9 @@ def main():
                 "producer-timestamp": timestamp,
                 "values": facts }}
 
+        payload_dump = logfile[:-4] + "facts_payload.json"
+        with open(payload_dump, 'w') as f:
+            f.write(json.dumps(payload))
         r = requests.post(endpoint, json=payload, **requests_kwargs)
         if r.status_code != 200:
             module.fail_json(
