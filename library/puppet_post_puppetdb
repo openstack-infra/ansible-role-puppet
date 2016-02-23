@@ -98,6 +98,10 @@ def main():
             # too - but let facter facts with the same name win
             facts.setdefault(k, v)
 
+    # remove some problematic facts from facts
+    del facts['files']
+    del facts['groups']
+
     if facts:
         # Don't post facts update if we don't have facts
         payload = {
