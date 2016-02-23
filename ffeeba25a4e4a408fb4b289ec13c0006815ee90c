@@ -1,0 +1,10 @@
+Code-Review+2: Clark Boylan <cboylan@sapwetik.org>
+Code-Review+1: Clint Adams <clint@gcfm.net>
+Code-Review+2: Jeremy Stanley <fungi@yuggoth.org>
+Workflow+1: Jeremy Stanley <fungi@yuggoth.org>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Tue, 23 Feb 2016 22:08:26 +0000
+Reviewed-on: https://review.openstack.org/283818
+Project: openstack-infra/ansible-puppet
+Branch: refs/heads/master
