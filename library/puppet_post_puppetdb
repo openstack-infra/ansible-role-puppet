@@ -113,11 +113,6 @@ def main():
         with open(payload_dump, 'w') as f:
             f.write(json.dumps(payload))
         r = requests.post(endpoint, json=payload, **requests_kwargs)
-        if r.status_code != 200:
-            module.fail_json(
-                rc=r.status_code,
-                msg="Failed to post facts to {puppetdb}".format(
-                    puppetdb=p['puppetdb']))
 
     log_data = json.load(open(p['logfile'], 'r'))
     r = requests.post(endpoint, json=log_data, **requests_kwargs)
