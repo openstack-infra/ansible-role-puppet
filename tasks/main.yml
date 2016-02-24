@@ -57,6 +57,7 @@
     show_diff: "{{ show_diff|default(false) }}"
     facts: "{{ facts|default(omit) }}"
     facter_basename: "{{ facter_basename|default(omit) }}"
+    logdest: "{{ puppet_logdest|default(omit) }}"
 
 - block:
   - name: find logs
