@@ -1,6 +1,14 @@
 ---
 # defaults file for ansible-puppet
-copy_hieradata: false
-copy_puppet: false
-hieradata: /etc/puppet/hieradata
-puppet_environment: production
+copy_hieradata: "{{ puppet.copy_hieradata|default(false) }}"
+copy_puppet: "{{ puppet.copy_puppet|default(false) }}"
+hieradata: "{{ puppet.hieradata|default(/etc/puppet/hieradata) }}"
+manifest_base: "{{ puppet.manifest_base|default(omit) }}"
+puppet_environment: "{{ puppet.environment|default(production) }}"
+puppet_report_as: "{{ puppet.report_as|default(omit) }}"
+puppetdb: "{{ puppet.puppetdb|default(omit) }}"
+puppetmaster: "{{ puppet.puppetmaster|default(omit) }}"
+manifest: "{{ puppet.manifest|default(omit) }}"
+show_diff: "{{ puppet.show_diff|default(false) }}"
+facts: "{{ puppet.facts|default(omit) }}"
+facter_basename: "{{ puppet.facter_basename|default(omit) }}"
