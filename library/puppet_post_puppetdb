@@ -98,6 +98,14 @@ def main():
             # too - but let facter facts with the same name win
             facts.setdefault(k, v)
 
+    # remove some problematic facts from facts (if they exist)
+    # files can be a long list of files in a directory
+    if facts.get('files') is not None:
+        del facts['files']
+    # groups can be the entire ansible inventory
+    if facts.get('groups') is not None:
+        del facts['groups']
+
     if facts:
         # Don't post facts update if we don't have facts
         payload = {
