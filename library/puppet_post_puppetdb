@@ -120,10 +120,21 @@ def main():
         payload_dump = p['logfile'][:-4] + "facts_payload.json"
         with open(payload_dump, 'w') as f:
             f.write(json.dumps(payload))
-        r = requests.post(endpoint, json=payload, **requests_kwargs)
+        try:
+            r = requests.post(endpoint, json=payload, **requests_kwargs)
+        except Exception as e:
+            pass
 
     log_data = json.load(open(p['logfile'], 'r'))
-    r = requests.post(endpoint, json=log_data, **requests_kwargs)
+    try:
+        r = requests.post(endpoint, json=log_data, **requests_kwargs)
+    except Exception as e:
+        module.fail_json(
+            msg="Exception: {e}".format(e=e),
+            puppetdb=p['puppetdb'],
+            endpoint=endpoint,
+            logfile=p['logfile'])
+
     if r.status_code != 200:
         module.fail_json(
             rc=r.status_code,
