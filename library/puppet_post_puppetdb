@@ -92,11 +92,6 @@ def main():
     for k, v in p['hostvars'].items():
         if k.startswith('facter_'):
             facts[k[7:]] = v
-    for k, v in p['hostvars'].items():
-        if not k.startswith('facter_'):
-            # Go ahead and set the non-facter facts that ansible has gathered
-            # too - but let facter facts with the same name win
-            facts.setdefault(k, v)
 
     # remove some problematic facts from facts (if they exist)
     # files can be a long list of files in a directory
