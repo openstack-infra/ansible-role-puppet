@@ -82,7 +82,7 @@
       puppetdb: "{{ puppetdb }}"
       hostvars: "{{ hostvars[inventory_hostname] }}"
       logfile: "{{ puppet_logfile }}"
-      whoami: "{{ ansible_fqdn }}"
+      whoami: "{{ puppet_report_as }}"
     delegate_to: localhost
     connection: local
 
