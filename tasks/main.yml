@@ -50,6 +50,10 @@
   - copy_puppet
   - manifest_base is defined
 
+- name: setup config files
+  when: manage_config
+  include: config.yml
+
 - name: run puppet
   puppet:
     puppetmaster: "{{ puppetmaster|default(omit) }}"

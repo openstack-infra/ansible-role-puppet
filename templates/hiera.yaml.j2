@@ -1,0 +1,14 @@
+---
+:hierarchy:
+  # Use private hieradata first
+  - "hieradata/%{::environment}/fqdn/%{::fqdn}"
+  - "hieradata/%{::environment}/group/%{group}" # no :: because group is set at nodescope
+  - "hieradata/%{::environment}/common"
+  # Use public hieradata second, also be environmentally aware
+  - "%{::environment}/fqdn/%{::fqdn}"
+  - "%{::environment}/group/%{group}" # no :: because group is set at nodescope
+  - "%{::environment}/common"
+:backends:
+  - yaml
+:yaml:
+  :datadir: "{{ puppet_hiera_datadir }}"
