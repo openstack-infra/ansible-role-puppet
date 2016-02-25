@@ -5,9 +5,9 @@
   - "hieradata/%{::environment}/group/%{group}" # no :: because group is set at nodescope
   - "hieradata/%{::environment}/common"
   # Use public hieradata second, also be environmentally aware
-  - "%{::environment}/fqdn/%{::fqdn}"
-  - "%{::environment}/group/%{group}" # no :: because group is set at nodescope
-  - "%{::environment}/common"
+  - "%{::environment}/hiera/fqdn/%{::fqdn}"
+  - "%{::environment}/hiera/group/%{group}" # no :: because group is set at nodescope
+  - "%{::environment}/hiera/common"
 :backends:
   - yaml
 :yaml:
