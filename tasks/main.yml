@@ -51,7 +51,7 @@
   - manifest_base is defined
 
 - name: setup config files
-  when: manage_config
+  when: manage_config is defined
   include: config.yml
 
 - name: run puppet
