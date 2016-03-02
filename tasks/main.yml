@@ -67,6 +67,7 @@
   - name: find logs
     shell: "ls -tr /var/lib/puppet/reports/{{ ansible_fqdn }}/*_puppetdb.json"
     register: files
+    failed_when: files.stdout_lines|default("") == ""
 
   - name: set log filename
     set_fact: puppet_logfile="{{ files.stdout_lines|sort|last }}"
