@@ -54,16 +54,16 @@
   when: manage_config|bool
   include: config.yml
 
-- name: run puppet
-  puppet:
-    puppetmaster: "{{ puppetmaster|default(omit) }}"
-    manifest: "{{ manifest|default(omit) }}"
-    show_diff: "{{ show_diff|default(false) }}"
-    facts: "{{ facts|default(omit) }}"
-    facter_basename: "{{ facter_basename|default(omit) }}"
-    logdest: "{{ puppet_logdest|default(omit) }}"
-
 - block:
+  - name: run puppet
+    puppet:
+      puppetmaster: "{{ puppetmaster|default(omit) }}"
+      manifest: "{{ manifest|default(omit) }}"
+      show_diff: "{{ show_diff|default(false) }}"
+      facts: "{{ facts|default(omit) }}"
+      facter_basename: "{{ facter_basename|default(omit) }}"
+      logdest: "{{ puppet_logdest|default(omit) }}"
+- always:
   - name: find logs
     shell: "ls -tr /var/lib/puppet/reports/{{ ansible_fqdn }}/*_puppetdb.json"
     register: files
