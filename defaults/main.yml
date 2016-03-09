@@ -3,6 +3,7 @@
 copy_hieradata: false
 copy_puppet: false
 hieradata: /etc/puppet/hieradata
+post_logs: true
 #
 
 manage_config: False

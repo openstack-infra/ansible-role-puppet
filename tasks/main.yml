@@ -90,4 +90,4 @@
     delegate_to: localhost
     connection: local
 
-  when: puppetdb is defined and puppet_report_as is defined
+  when: puppetdb is defined and puppet_report_as is defined and post_logs
