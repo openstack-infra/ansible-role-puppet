@@ -64,19 +64,28 @@
       facter_basename: "{{ facter_basename|default(omit) }}"
       logdest: "{{ puppet_logdest|default(omit) }}"
 - always:
+  - name: create reports directory
+    file: path=/var/lib/puppet/reports/{{ ansible_fqdn }} owner=root group=root mode=0755 state=directory
+    delegate_to: localhost
+
   - name: find logs
     shell: "ls -tr /var/lib/puppet/reports/{{ ansible_fqdn }}/*_puppetdb.json"
     register: files
-    failed_when: files.stdout_lines|default("") == ""
 
   - name: set log filename
     set_fact: puppet_logfile="{{ files.stdout_lines|sort|last }}"
     when: "{{ files.stdout_lines|length > 0 }}"
 
-  - name: create reports directory
-    file: path=/var/lib/puppet/reports/{{ ansible_fqdn }} owner=root group=root mode=0755 state=directory
+  - name: set log filename if no file
+    set_fact: puppet_logfile="/var/lib/puppet/reports/{{ ansible_fqdn }}/no_log_file_log_file"
+    when: "{{ files.stdout_lines|length == 0 }}"
+
+  - name: create dummy failed logfile
+    # TODO: write dummy file contents to puppet_logfile
+    #set_fact: puppet_logfile="no_log_file_log_file"
+    dest: {{ puppet_logfile }}
+    when: "{{ files.stdout_lines|length == 0 }}"
     delegate_to: localhost
-    when: "{{ files.stdout_lines|length > 0 }}"
 
   - name: fetch file
     synchronize:
@@ -93,6 +102,5 @@
       whoami: "{{ puppet_report_as }}"
     delegate_to: localhost
     connection: local
-    when: "{{ files.stdout_lines|length > 0 }}"
 
   when: puppetdb is defined and puppet_report_as is defined
