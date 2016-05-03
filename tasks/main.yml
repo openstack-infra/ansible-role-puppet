@@ -88,7 +88,6 @@
   - name: post facts
     puppet_post_puppetdb:
       puppetdb: "{{ puppetdb }}"
-      hostvars: "{{ hostvars[inventory_hostname] }}"
       logfile: "{{ puppet_logfile }}"
       whoami: "{{ puppet_report_as }}"
     delegate_to: localhost

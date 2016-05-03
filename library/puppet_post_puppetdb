@@ -32,9 +32,9 @@ options:
       - The hostname of the puppetdb server to post to
     required: true
   hostvars:
-    desciption:
+    description:
       - Ansible hostvars to pull facts from
-    required: true
+    required: false
   logfile:
     desciption:
       - Absolute path of the Puppet logfile to post
@@ -66,7 +66,7 @@ def main():
     module = AnsibleModule(
         argument_spec=dict(
             puppetdb=dict(required=True),
-            hostvars=dict(required=True),
+            hostvars=dict(required=False, default={}),
             logfile=dict(required=True),
             whoami=dict(required=True),
             environment=dict(required=False, default='production'),
@@ -75,7 +75,6 @@ def main():
     )
     p = module.params
     endpoint = '{puppetdb}/v3/commands'.format(puppetdb=p['puppetdb'])
-    fqdn = p['hostvars']['inventory_hostname']
     whoami = p['whoami']
     cert = '/var/lib/puppet/ssl/certs/{whoami}.pem'.format(whoami=whoami)
     key = '/var/lib/puppet/ssl/private_keys/{whoami}.pem'.format(whoami=whoami)
@@ -107,7 +106,7 @@ def main():
             "command": "replace facts",
             "version": 3,
             "payload": {
-                "name": fqdn,
+                "name": whoami,
                 "environment": p['environment'],
                 "producer-timestamp": timestamp,
                 "values": facts }}
