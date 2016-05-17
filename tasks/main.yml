@@ -14,7 +14,7 @@
   - name: make file list
     puppet_get_hiera_file_list:
       fqdn: "{{ ansible_fqdn }}"
-      groups: "{{ hostvars[inventory_hostname].group_names }}"
+      groups: "{{ group_names }}"
       location: "{{ hieradata }}/{{ puppet_environment }}"
     delegate_to: localhost
     register: hiera_file_paths
