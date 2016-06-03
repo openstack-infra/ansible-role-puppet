@@ -1,0 +1,11 @@
+Code-Review+2: yolanda.robla <info@ysoft.biz>
+Code-Review+1: Sam Yaple <sam@yaple.net>
+Code-Review+1: Ricardo Carrillo Cruz <ricardo.carrillo.cruz@gmail.com>
+Code-Review+2: Elizabeth K. Joseph <lyz@princessleia.com>
+Workflow+1: Elizabeth K. Joseph <lyz@princessleia.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Fri, 03 Jun 2016 15:08:59 +0000
+Reviewed-on: https://review.openstack.org/278850
+Project: openstack-infra/ansible-puppet
+Branch: refs/heads/master
