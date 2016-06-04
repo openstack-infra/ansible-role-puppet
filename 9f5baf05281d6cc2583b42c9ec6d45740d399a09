@@ -1,0 +1,10 @@
+Code-Review+2: yolanda.robla <info@ysoft.biz>
+Code-Review+2: Elizabeth K. Joseph <lyz@princessleia.com>
+Workflow+1: Elizabeth K. Joseph <lyz@princessleia.com>
+Workflow+1: Monty Taylor <mordred@inaugust.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Sat, 04 Jun 2016 06:55:40 +0000
+Reviewed-on: https://review.openstack.org/324275
+Project: openstack-infra/ansible-role-puppet
+Branch: refs/heads/master
