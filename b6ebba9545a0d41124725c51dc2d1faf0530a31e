@@ -1,0 +1,9 @@
+Code-Review+2: yolanda.robla <yroblamo@redhat.com>
+Code-Review+2: Monty Taylor <mordred@inaugust.com>
+Workflow+1: Monty Taylor <mordred@inaugust.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Mon, 06 Jun 2016 13:02:06 +0000
+Reviewed-on: https://review.openstack.org/321771
+Project: openstack-infra/ansible-role-puppet
+Branch: refs/heads/master
