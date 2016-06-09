@@ -63,6 +63,12 @@
       facts: "{{ facts|default(omit) }}"
       facter_basename: "{{ facter_basename|default(omit) }}"
       logdest: "{{ puppet_logdest|default(omit) }}"
+    register: puppet_output
+  - name: syslog puppet output on localhost
+    shell: logger -t "ansible-puppet on {{ inventory_hostname }}" "{{ item | regex_replace('(^\033\[m|\033\[0m$)', '') }}"
+    delegate_to: localhost
+    with_items: "{{ puppet_output.stdout_lines }}"
+    when: syslog_puppet_local
 - always:
   - name: find logs
     shell: "ls -tr /var/lib/puppet/reports/{{ ansible_fqdn }}/*_puppetdb.json"

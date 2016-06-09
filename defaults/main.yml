@@ -14,3 +14,6 @@ puppet_basemodulepath: '$confdir/modules:/opt/system-config/production/modules'
 puppet_environmentpath: '$confdir/environments'
 puppet_hiera_datadir: '/opt/system-config/'
 puppet_environment: production
+
+# syslog puppet output on local control machine running Ansible
+syslog_puppet_local: false
