@@ -74,6 +74,13 @@ options:
     default: stdout
     choices: [ 'stdout', 'syslog' ]
     version_added: "2.1"
+  color:
+    description:
+      - Color output mode for stdout logging
+    required: False
+    default: false
+    choices: [ 'false', 'ansi', 'html' ]
+    version_added: "2.1"
 requirements: [ puppet ]
 author: "Monty Taylor (@emonty)"
 '''
@@ -124,6 +131,9 @@ def main():
             show_diff=dict(
                 # internal code to work with --diff, do not use
                 default=False, aliases=['show-diff'], type='bool'),
+            color=dict(
+                required=False, default='false',
+                choices=['false', 'ansi', 'html']),
             facts=dict(default=None),
             facter_basename=dict(default='ansible'),
             environment=dict(required=False, default=None),
@@ -177,6 +187,9 @@ def main():
     else:
         base_cmd = PUPPET_CMD
 
+    executable = None
+    use_unsafe_shell = False
+
     if not p['manifest']:
         cmd = ("%(base_cmd)s agent --onetime"
                " --ignorecache --no-daemonize --no-usecacheonfailure"
@@ -189,22 +202,28 @@ def main():
             cmd += " --show_diff"
         if p['environment']:
             cmd += " --environment '%s'" % p['environment']
+        if p['color']:
+            cmd += "--color '%s' " % p['color']
         if module.check_mode:
             cmd += " --noop"
         else:
             cmd += " --no-noop"
     else:
         cmd = "%s apply --detailed-exitcodes " % base_cmd
-        if p['logdest'] == 'syslog':
-            cmd += "--logdest syslog "
         if p['environment']:
             cmd += "--environment '%s' " % p['environment']
+        if p['color']:
+            cmd += "--color '%s' " % p['color']
         if module.check_mode:
             cmd += "--noop "
         else:
             cmd += "--no-noop "
         cmd += pipes.quote(p['manifest'])
-    rc, stdout, stderr = module.run_command(cmd)
+        if p['logdest'] == 'syslog':
+            cmd += " | tee >(logger -t puppet-user)"
+            executable = '/bin/bash'
+            use_unsafe_shell = True
+    rc, stdout, stderr = module.run_command(cmd, executable=executable, use_unsafe_shell=use_unsafe_shell)
 
     if rc == 0:
         # success
