@@ -43,7 +43,7 @@ def main():
     module = AnsibleModule(
         argument_spec=dict(
             fqdn=dict(required=True),
-            groups=dict(required=True),
+            groups=dict(required=True, type='list'),
             location=dict(required=True),
         ),
     )
