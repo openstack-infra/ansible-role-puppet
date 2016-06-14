@@ -42,9 +42,9 @@ author: Monty Taylor
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            fqdn=dict(required=True),
-            groups=dict(required=True),
-            location=dict(required=True),
+            fqdn=dict(required=True, type='string'),
+            groups=dict(required=True, type='list'),
+            location=dict(required=True, type='string'),
         ),
     )
     p = module.params
