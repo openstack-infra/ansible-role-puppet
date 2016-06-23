@@ -12,7 +12,9 @@ used, the cert exchange needs to have been performed.
 Role Variables
 --------------
 
-puppetmaster is the required parameter.
+Either puppetmaster or manifest should be supplied. If you are using puppet
+agent, you want to supply puppetmaster. If you are using puppet apply, you
+want to supply manifest.
 
 Dependencies
 ------------
