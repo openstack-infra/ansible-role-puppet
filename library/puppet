@@ -197,6 +197,8 @@ def main():
         cmd = "%s apply --detailed-exitcodes " % base_cmd
         if p['logdest'] == 'syslog':
             cmd += "--logdest syslog "
+        if p['show_diff']:
+            cmd += " --show_diff"
         if p['environment']:
             cmd += "--environment '%s' " % p['environment']
         if module.check_mode:
