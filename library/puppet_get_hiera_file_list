@@ -42,9 +42,11 @@ author: Monty Taylor
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            fqdn=dict(required=True, type='string'),
+            # See AnsibleModule._CHECK_ARGUMENT_TYPES_DISPATCHER for the
+            # names of valid types
+            fqdn=dict(required=True, type='str'),
             groups=dict(required=True, type='list'),
-            location=dict(required=True, type='string'),
+            location=dict(required=True, type='str'),
         ),
     )
     p = module.params
