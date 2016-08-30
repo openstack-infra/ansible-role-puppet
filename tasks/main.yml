@@ -29,10 +29,12 @@
   when: copy_hieradata
 
 - block:
-  - name: copy puppet modules
+  - name: copy manifest puppet modules
     synchronize:
       src: "{{ manifest_base }}/{{ puppet_environment }}"
       dest: "{{ manifest_base }}"
+      delete: yes
+      recursive: yes
 
   - name: ensure hieradata manifest link is present
     file:
@@ -45,6 +47,8 @@
     synchronize:
       src: /etc/puppet/modules
       dest: /etc/puppet
+      delete: yes
+      recursive: yes
 
   when:
   - copy_puppet
