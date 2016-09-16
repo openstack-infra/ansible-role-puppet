@@ -79,6 +79,12 @@ options:
     required: false
     default: false
     version_added: "2.1"
+  debug:
+    description:
+      - Whether puppet should be run in debug mode
+    required: false
+    default: false
+    version_added: "2.1"
 
 requirements: [ puppet ]
 author: "Monty Taylor (@emonty)"
@@ -133,6 +139,7 @@ def main():
             facter_basename=dict(default='ansible'),
             environment=dict(required=False, default=None),
             noop=dict(required=False, default=False, type='bool'),
+            debug=dict(required=False, default=False, type='bool'),
         ),
         supports_check_mode=True,
         mutually_exclusive=[
@@ -204,6 +211,8 @@ def main():
         cmd += " --noop"
     else:
         cmd += " --no-noop"
+    if p['debug']:
+        cmd += " --debug"
     rc, stdout, stderr = module.run_command(cmd)
 
     if rc == 0:
