@@ -64,6 +64,7 @@
       facter_basename: "{{ facter_basename|default(omit) }}"
       logdest: "{{ puppet_logdest|default(omit) }}"
       environment: "{{ puppet_environment|default(omit) }}"
+      noop: "{{ puppet_noop|default(omit) }}"
 - always:
   - name: find logs
     shell: "ls -tr /var/lib/puppet/reports/{{ ansible_fqdn }}/*_puppetdb.json"
