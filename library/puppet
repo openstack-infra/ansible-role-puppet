@@ -191,27 +191,19 @@ def main():
                    )
         if p['puppetmaster']:
             cmd += " --server %s" % pipes.quote(p['puppetmaster'])
-        if p['show_diff']:
-            cmd += " --show_diff"
-        if p['environment']:
-            cmd += " --environment '%s'" % p['environment']
-        if module.check_mode or p['noop']:
-            cmd += " --noop"
-        else:
-            cmd += " --no-noop"
     else:
         cmd = "%s apply --detailed-exitcodes " % base_cmd
+        cmd += pipes.quote(p['manifest'])
         if p['logdest'] != 'stdout':
             cmd += "--logdest %s " % p['logdest']
-        if p['show_diff']:
-            cmd += "--show_diff "
-        if p['environment']:
-            cmd += "--environment '%s' " % p['environment']
-        if module.check_mode or p['noop']:
-            cmd += "--noop "
-        else:
-            cmd += "--no-noop "
-        cmd += pipes.quote(p['manifest'])
+    if p['show_diff']:
+        cmd += "--show_diff "
+    if p['environment']:
+        cmd += "--environment '%s' " % p['environment']
+    if module.check_mode or p['noop']:
+        cmd += "--noop "
+    else:
+        cmd += "--no-noop "
     rc, stdout, stderr = module.run_command(cmd)
 
     if rc == 0:
