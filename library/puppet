@@ -193,13 +193,13 @@ def main():
     if not p['manifest']:
         cmd = ("%(base_cmd)s agent --onetime"
                " --ignorecache --no-daemonize --no-usecacheonfailure"
-               " --no-splay --detailed-exitcodes --verbose") % dict(
+               " --no-splay --verbose") % dict(
                    base_cmd=base_cmd,
                    )
         if p['puppetmaster']:
             cmd += " --server %s" % pipes.quote(p['puppetmaster'])
     else:
-        cmd = "%s apply --detailed-exitcodes " % base_cmd
+        cmd = "%s apply " % base_cmd
         cmd += pipes.quote(p['manifest'])
         if p['logdest'] != 'stdout':
             cmd += " --logdest %s" % p['logdest']
@@ -208,9 +208,12 @@ def main():
     if p['environment']:
         cmd += " --environment '%s'" % p['environment']
     if module.check_mode or p['noop']:
+        # Noop causes detailed-exitcodes to sometimes erroneously
+        # return failures, so we only set detailed-exitcodes when
+        # running for real.
         cmd += " --noop"
     else:
-        cmd += " --no-noop"
+        cmd += " --no-noop --detailed-exitcodes"
     if p['debug']:
         cmd += " --debug"
     rc, stdout, stderr = module.run_command(cmd)
