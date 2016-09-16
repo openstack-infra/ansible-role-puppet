@@ -72,7 +72,6 @@ options:
       - Where the puppet logs should go, if puppet apply is being used
     required: false
     default: stdout
-    choices: [ 'stdout', 'syslog' ]
     version_added: "2.1"
 requirements: [ puppet ]
 author: "Monty Taylor (@emonty)"
@@ -195,10 +194,10 @@ def main():
             cmd += " --no-noop"
     else:
         cmd = "%s apply --detailed-exitcodes " % base_cmd
-        if p['logdest'] == 'syslog':
-            cmd += "--logdest syslog "
         if p['show_diff']:
             cmd += "--show_diff "
+        if p['logdest'] != 'stdout':
+            cmd += "--logdest %s " % p['logdest']
         if p['environment']:
             cmd += "--environment '%s' " % p['environment']
         if module.check_mode:
