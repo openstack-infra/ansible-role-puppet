@@ -8,7 +8,7 @@ certname={{ certname }}
 pluginsync=true
 data_binding_terminus={{ puppet_data_binding_terminus }}
 reports={{ puppet_reports }}
-basemodulepath={{ puppet_basemodulepath }}
+basemodulepath = '{{ puppet_basemodulepath }}:{{ puppet_hiera_datadir }}production/modules'
 environmentpath={{ puppet_environmentpath }}
 environmenttimeout=0
 
