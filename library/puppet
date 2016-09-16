@@ -73,6 +73,13 @@ options:
     required: false
     default: stdout
     version_added: "2.1"
+  noop:
+    description:
+      - Whether puppet should be run in noop mode
+    required: false
+    default: false
+    version_added: "2.1"
+
 requirements: [ puppet ]
 author: "Monty Taylor (@emonty)"
 '''
@@ -126,6 +133,7 @@ def main():
             facts=dict(default=None),
             facter_basename=dict(default='ansible'),
             environment=dict(required=False, default=None),
+            noop=dict(required=False, default=False),
         ),
         supports_check_mode=True,
         mutually_exclusive=[
@@ -188,7 +196,7 @@ def main():
             cmd += " --show_diff"
         if p['environment']:
             cmd += " --environment '%s'" % p['environment']
-        if module.check_mode:
+        if module.check_mode or p['noop']:
             cmd += " --noop"
         else:
             cmd += " --no-noop"
@@ -200,7 +208,7 @@ def main():
             cmd += "--logdest %s " % p['logdest']
         if p['environment']:
             cmd += "--environment '%s' " % p['environment']
-        if module.check_mode:
+        if module.check_mode or p['noop']:
             cmd += "--noop "
         else:
             cmd += "--no-noop "
