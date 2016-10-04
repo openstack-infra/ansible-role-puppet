@@ -1,0 +1,9 @@
+Code-Review+2: Spencer Krum <nibz@spencerkrum.com>
+Code-Review+2: Clark Boylan <cboylan@sapwetik.org>
+Workflow+1: James E. Blair <corvus@inaugust.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Tue, 04 Oct 2016 21:18:33 +0000
+Reviewed-on: https://review.openstack.org/371835
+Project: openstack-infra/ansible-role-puppet
+Branch: refs/heads/master
