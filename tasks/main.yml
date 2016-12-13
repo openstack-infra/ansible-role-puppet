@@ -1,4 +1,8 @@
 ---
+- name: check puppet version
+  puppet_get_version:
+  register: puppet_version
+
 - block:
   - name: ensure hiera directory
     file:
