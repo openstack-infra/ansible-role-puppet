@@ -15,3 +15,4 @@ puppet_environmentpath: '$confdir/environments'
 puppet_hiera_datadir: '/opt/system-config/'
 puppet_environment_basedir: '/opt/system-config/'
 puppet_environment: production
+puppet_timeout: 30m

@@ -66,6 +66,7 @@
       environment: "{{ puppet_environment|default(omit) }}"
       noop: "{{ puppet_noop|default(omit) }}"
       debug: "{{ puppet_debug|default(omit) }}"
+      timeout: "{{ puppet_timeout|default(omit) }}"
 - always:
   - name: find logs
     shell: "ls -tr /var/lib/puppet/reports/{{ ansible_fqdn }}/*_puppetdb.json"
