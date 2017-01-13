@@ -1,0 +1,9 @@
+Code-Review+2: Ian Wienand <iwienand@redhat.com>
+Code-Review+2: Jeremy Stanley <fungi@yuggoth.org>
+Workflow+1: Jeremy Stanley <fungi@yuggoth.org>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Fri, 13 Jan 2017 16:41:16 +0000
+Reviewed-on: https://review.openstack.org/419615
+Project: openstack-infra/ansible-role-puppet
+Branch: refs/heads/master
