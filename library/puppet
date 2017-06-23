@@ -141,15 +141,17 @@ def _write_structured_data(basedir, basename, data):
     if not os.path.exists(basedir):
         os.makedirs(basedir)
     file_path = os.path.join(basedir, "{0}.json".format(basename))
+    output = json.dumps(data)
     # This is more complex than you might normally expect because we want to
     # open the file with only u+rw set. Also, we use the stat constants
     # because ansible still supports python 2.4 and the octal syntax changed
     out_file = os.fdopen(
         os.open(
-            file_path, os.O_CREAT | os.O_WRONLY,
+            file_path, os.O_CREAT | os.O_WRONLY | O_TRUNC,
             stat.S_IRUSR | stat.S_IWUSR), 'w')
-    out_file.write(json.dumps(data).encode('utf8'))
+    out_file.write(output.encode('utf8'))
     out_file.close()
+    return output
 
 
 def main():
@@ -209,10 +211,12 @@ def main():
                 msg="Puppet agent state could not be determined.")
 
     if module.params['facts'] and not module.check_mode:
-        _write_structured_data(
+        facts_output = _write_structured_data(
             _get_facter_dir(),
             module.params['facter_basename'],
             module.params['facts'])
+    else:
+        facts_output = None
 
     if TIMEOUT_CMD:
         base_cmd = "%(timeout_cmd)s -s 9 %(timeout)s %(puppet_cmd)s" % dict(
@@ -256,7 +260,7 @@ def main():
 
     if rc == 0:
         # success
-        module.exit_json(rc=rc, changed=False, stdout=stdout, stderr=stderr)
+        module.exit_json(rc=rc, facts_output=facts_output, facts=module.params['facts'], changed=False, stdout=stdout, stderr=stderr)
     elif rc == 1:
         # rc==1 could be because it's disabled
         # rc==1 could also mean there was a compilation failure
@@ -266,11 +270,11 @@ def main():
         else:
             msg = "puppet did not run"
         module.exit_json(
-            rc=rc, disabled=disabled, msg=msg,
+            rc=rc, disabled=disabled, msg=msg, facts_output=facts_output, facts=module.params['facts'],
             error=True, stdout=stdout, stderr=stderr)
     elif rc == 2:
         # success with changes
-        module.exit_json(rc=0, changed=True, stdout=stdout, stderr=stderr)
+        module.exit_json(rc=0, changed=True, stdout=stdout, stderr=stderr, facts_output=facts_output, facts=module.params['facts'])
     elif rc == 124:
         # timeout
         module.exit_json(
