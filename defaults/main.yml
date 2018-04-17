@@ -2,7 +2,6 @@
 # defaults file for ansible-puppet
 copy_hieradata: false
 copy_puppet: false
-hieradata: /etc/puppet/hieradata
 #
 
 manage_config: False
@@ -16,3 +15,4 @@ puppet_hiera_datadir: '/opt/system-config/'
 puppet_environment_basedir: '/opt/system-config/'
 puppet_environment: production
 puppet_timeout: 30m
+puppet_version: 3
