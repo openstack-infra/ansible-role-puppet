@@ -2,7 +2,6 @@
 # defaults file for ansible-puppet
 copy_hieradata: false
 copy_puppet: false
-hieradata: /etc/puppet/hieradata
 #
 
 manage_config: False
