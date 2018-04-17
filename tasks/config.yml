@@ -1,9 +1,17 @@
 ---
+- name: Set puppet conf dir
+  set_fact:
+      puppet_confdir: "{{ '/etc/puppet if puppet_version == '3' else '/etc/puppetlabs/puppet' }}"
+
+- name: Set puppet code dir
+  set_fact:
+      puppet_codedir: "{{ '/etc/puppet if puppet_version == '3' else '/etc/puppetlabs/code' }}"
+
 # Create our config
 - name: Create puppet.conf from template
   template:
     src: "puppet.conf.j2"
-    dest: "/etc/puppet/puppet.conf"
+    dest: "{{ puppet_confdir }}/puppet.conf"
     owner: root
     group: root
     mode: 0644
@@ -11,7 +19,7 @@
 - name: Create hiera.yaml from template
   template:
     src: "hiera.yaml.j2"
-    dest: "/etc/puppet/hiera.yaml"
+    dest: "{{ puppet_confdir }}/hiera.yaml"
     owner: root
     group: root
     mode: 0644
@@ -24,10 +32,11 @@
     group: root
     state: link
     force: yes
+  when: puppet_version == '3'
 
 - name: create environment directory
   file:
-    path: "/etc/puppet/environments/{{ puppet_environment }}"
+    path: "{{ puppet_codedir }}/environments/{{ puppet_environment }}"
     state: directory
     owner: root
     group: root
@@ -37,7 +46,7 @@
 - name: create environment.conf from template
   template:
     src: "environment.conf.j2"
-    dest: "/etc/puppet/environments/{{ puppet_environment }}/environment.conf"
+    dest: "{{ puppet_codedir }}/environments/{{ puppet_environment }}/environment.conf"
     owner: root
     group: root
     mode: 0644
