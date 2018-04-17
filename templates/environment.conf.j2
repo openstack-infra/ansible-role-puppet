@@ -1,1 +1,1 @@
-modulepath = '{{ puppet_basemodulepath }}:{{ puppet_environment_basedir }}{{ puppet_environment }}/modules'
+modulepath = {{ puppet_basemodulepath if puppet_basemodulepath != '' else '$basemodulepath' }}:$environmentpath/{{ puppet_environment }}/modules:{{ puppet_environment_basedir if puppet_environment_basedir != '' else '$environmentpath' }}/{{ puppet_environment }}/modules
