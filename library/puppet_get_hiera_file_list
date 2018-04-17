@@ -59,7 +59,7 @@ def main():
     for path in paths:
         full_path = os.path.join(p['location'], path)
         if os.path.exists(full_path):
-            good_paths.append(full_path)
+            good_paths.append(path)
 
     module.exit_json(paths=good_paths)
 
