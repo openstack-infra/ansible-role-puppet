@@ -2,7 +2,6 @@
 # defaults file for ansible-puppet
 copy_hieradata: false
 copy_puppet: false
-hieradata: /etc/puppet/hieradata
 #
 
 manage_config: False
@@ -10,9 +9,6 @@ puppet_server: puppet
 certname: "{{ ansible_fqdn }}"
 puppet_data_binding_terminus: hiera
 puppet_reports: store
-puppet_basemodulepath: '$confdir/modules'
-puppet_environmentpath: '$confdir/environments'
 puppet_hiera_datadir: '/opt/system-config/'
-puppet_environment_basedir: '/opt/system-config/'
 puppet_environment: production
 puppet_timeout: 30m

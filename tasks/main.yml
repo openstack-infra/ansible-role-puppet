@@ -1,9 +1,45 @@
 ---
+- name: Get management server puppet version
+  shell:
+    cmd: "puppet --version | cut -d '.' -f 1"
+  delegate_to: localhost
+  register: mgmt_puppet_version
+
+- name: Set management server puppet version fact
+  set_fact:
+    mgmt_puppet_version: "{{ mgmt_puppet_version.stdout }}"
+
+- name: Sanity check management server puppet version
+  fail: "Unsupported puppet version {{ mgmt_puppet_version }}"
+  when: (mgmt_puppet_version != '3' and mgmt_puppet_version != '4')
+
+- name: Get puppet version
+  shell:
+    cmd: "puppet --version | cut -d '.' -f 1"
+  register: puppet_version
+
+- name: Set puppet version fact
+  set_fact:
+    puppet_version: "{{ puppet_version.stdout }}"
+
+- name: Sanity check puppet version
+  fail: "Unsupported puppet version {{ puppet_version }}"
+  when: (puppet_version != '3' and puppet_version != '4')
+
 - block:
+  - name: Set management server hieradata var
+    set_fact:
+      mgmt_hieradata: "{{ '/etc/puppet/hieradata' + puppet_environment if mgmt_puppet_version == '3' else '/etc/puppetlabs/code/environments/' + puppet_environment + '/hieradata' }}"
+    delegate_to: localhost
+
+  - name: Set hieradata var
+    set_fact:
+      hieradata: "{{ '/etc/puppet/hieradata' + puppet_environment if puppet_version == '3' else '/etc/puppetlabs/code/environments/' + puppet_environment + '/hieradata' }}"
+
   - name: ensure hiera directory
     file:
       state: directory
-      path: "{{ hieradata }}/{{ puppet_environment }}/{{ item }}"
+      path: "{{ hieradata }}//{{ item }}"
       owner: root
       group: root
       mode: 0700
@@ -15,14 +51,14 @@
     puppet_get_hiera_file_list:
       fqdn: "{{ ansible_fqdn }}"
       groups: "{{ hostvars[inventory_hostname].group_names }}"
-      location: "{{ hieradata }}/{{ puppet_environment }}"
+      location: "{{ hieradata }}"
     delegate_to: localhost
     register: hiera_file_paths
 
   - name: copy hiera files
     copy:
-      src: "{{ item }}"
-      dest: "{{ item }}"
+      src: "{{ mgmt_hieradata + '/' + item }}"
+      dest: "{{ hieradata + '/' item }}"
       mode: 0600
     with_items: "{{ hiera_file_paths.paths|default() }}"
 
@@ -41,10 +77,19 @@
       state: link
     when: copy_hieradata
 
+  - name: Set management server puppet module dir
+    set_fact:
+      mgmt_puppet_module_dir: "{{ '/etc/puppet/modules' if mgmt_puppet_version == '3' else '/etc/puppetlabs/code/modules' }}"
+    delegate_to: localhost
+
+  - name: Set puppet module dir
+    set_fact:
+      puppet_module_dir: "{{ '/etc/puppet' if puppet_version == '3' else '/etc/puppetlabs/code' }}"
+
   - name: copy system puppet modules
     synchronize:
-      src: /etc/puppet/modules
-      dest: /etc/puppet
+      src: "{{ mgmt_puppet_module_dir }}"
+      dest: "{{ puppet_module_dir }}"
 
   when:
   - copy_puppet
