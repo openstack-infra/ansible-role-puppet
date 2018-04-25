@@ -1,0 +1,9 @@
+Code-Review+2: Clark Boylan <cboylan@sapwetik.org>
+Code-Review+2: Jeremy Stanley <fungi@yuggoth.org>
+Workflow+1: Clark Boylan <cboylan@sapwetik.org>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Wed, 25 Apr 2018 17:43:26 +0000
+Reviewed-on: https://review.openstack.org/562068
+Project: openstack-infra/ansible-role-puppet
+Branch: refs/heads/master
