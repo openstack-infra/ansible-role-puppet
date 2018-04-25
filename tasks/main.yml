@@ -29,12 +29,12 @@
 - block:
   - name: Set management server hieradata var
     set_fact:
-      mgmt_hieradata: "{{ '/etc/puppet/hieradata' + puppet_environment if mgmt_puppet_version == '3' else '/etc/puppetlabs/code/environments/' + puppet_environment + '/hieradata' }}"
+      mgmt_hieradata: "{{ '/etc/puppet/hieradata/' + puppet_environment if mgmt_puppet_version == '3' else '/etc/puppetlabs/code/environments/' + puppet_environment + '/hieradata' }}"
     delegate_to: localhost
 
   - name: Set hieradata var
     set_fact:
-      hieradata: "{{ '/etc/puppet/hieradata' + puppet_environment if puppet_version == '3' else '/etc/puppetlabs/code/environments/' + puppet_environment + '/hieradata' }}"
+      hieradata: "{{ '/etc/puppet/hieradata/' + puppet_environment if puppet_version == '3' else '/etc/puppetlabs/code/environments/' + puppet_environment + '/hieradata' }}"
 
   - name: ensure hiera directory
     file:
