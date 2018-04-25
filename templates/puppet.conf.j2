@@ -8,9 +8,13 @@ certname={{ certname }}
 pluginsync=true
 data_binding_terminus={{ puppet_data_binding_terminus }}
 reports={{ puppet_reports }}
-basemodulepath = {{ puppet_basemodulepath }}
-environmentpath={{ puppet_environmentpath }}
 environmenttimeout=0
+{% if puppet_basemodulepath != '' %}
+basemodulepath = {{ puppet_basemodulepath }}
+{% endif %}
+{% if puppet_environmentpath != '' %}
+environmentpath={{ puppet_environmentpath }}
+{% endif %}
 
 [master]
 # These are needed when the puppetmaster is run by passenger
