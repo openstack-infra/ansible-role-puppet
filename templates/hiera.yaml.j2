@@ -1,9 +1,14 @@
 ---
 :hierarchy:
   # Use private hieradata first
+  # Puppet3 paths
   - "hieradata/%{::environment}/fqdn/%{::fqdn}"
   - "hieradata/%{::environment}/group/%{group}" # no :: because group is set at nodescope
   - "hieradata/%{::environment}/common"
+  # Puppet4 paths
+  - "%{::environment}/hieradata/fqdn/%{::fqdn}"
+  - "%{::environment}/hieradata/group/%{group}" # no :: because group is set at nodescope
+  - "%{::environment}/hieradata/common"
   # Use public hieradata second, also be environmentally aware
   - "%{::environment}/hiera/fqdn/%{::fqdn}"
   - "%{::environment}/hiera/group/%{group}" # no :: because group is set at nodescope
