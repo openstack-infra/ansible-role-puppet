@@ -1,0 +1,10 @@
+Code-Review+1: Colleen Murphy <colleen@gazlene.net>
+Code-Review+2: Jeremy Stanley <fungi@yuggoth.org>
+Code-Review+2: James E. Blair <corvus@inaugust.com>
+Workflow+1: Clark Boylan <cboylan@sapwetik.org>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Wed, 25 Apr 2018 20:34:30 +0000
+Reviewed-on: https://review.openstack.org/564324
+Project: openstack-infra/ansible-role-puppet
+Branch: refs/heads/master
