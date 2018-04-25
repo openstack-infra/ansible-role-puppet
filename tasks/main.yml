@@ -29,17 +29,17 @@
 - block:
   - name: Set management server hieradata var
     set_fact:
-      mgmt_hieradata: "{{ '/etc/puppet/hieradata' + puppet_environment if mgmt_puppet_version == '3' else '/etc/puppetlabs/code/environments/' + puppet_environment + '/hieradata' }}"
+      mgmt_hieradata: "{{ '/etc/puppet/hieradata/' + puppet_environment if mgmt_puppet_version == '3' else '/etc/puppetlabs/code/environments/' + puppet_environment + '/hieradata' }}"
     delegate_to: localhost
 
   - name: Set hieradata var
     set_fact:
-      hieradata: "{{ '/etc/puppet/hieradata' + puppet_environment if puppet_version == '3' else '/etc/puppetlabs/code/environments/' + puppet_environment + '/hieradata' }}"
+      hieradata: "{{ '/etc/puppet/hieradata/' + puppet_environment if puppet_version == '3' else '/etc/puppetlabs/code/environments/' + puppet_environment + '/hieradata' }}"
 
   - name: ensure hiera directory
     file:
       state: directory
-      path: "{{ hieradata }}//{{ item }}"
+      path: "{{ hieradata }}/{{ item }}"
       owner: root
       group: root
       mode: 0700
@@ -58,7 +58,7 @@
   - name: copy hiera files
     copy:
       src: "{{ mgmt_hieradata + '/' + item }}"
-      dest: "{{ hieradata + '/' item }}"
+      dest: "{{ hieradata + '/' + item }}"
       mode: 0600
     with_items: "{{ hiera_file_paths.paths|default() }}"
 
