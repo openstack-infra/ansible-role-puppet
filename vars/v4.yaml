@@ -1,0 +1,2 @@
+hieradata: '/etc/puppetlabs/code/environments'
+puppet_dir: '/etc/puppetlabs/code'
