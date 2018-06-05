@@ -15,6 +15,9 @@ basemodulepath = {{ puppet_basemodulepath }}
 {% if puppet_environmentpath != '' %}
 environmentpath={{ puppet_environmentpath }}
 {% endif %}
+{% if puppet_version != '4' and futureparser == True %}
+parser = future
+{% endif %}
 
 [master]
 # These are needed when the puppetmaster is run by passenger
