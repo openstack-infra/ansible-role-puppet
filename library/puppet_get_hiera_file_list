@@ -51,9 +51,9 @@ def main():
     )
     p = module.params
 
-    paths = ['group/%s.yaml' % f for f in p['groups'] ]
-    paths.append('common.yaml')
-    paths.append('fqdn/%s.yaml' % p['fqdn'])
+    paths = ['group_vars/%s.yaml' % f for f in p['groups'] ]
+    paths.append('group_vars/all.yaml')
+    paths.append('host_vars/%s.yaml' % p['fqdn'])
 
     good_paths = []
     for path in paths:

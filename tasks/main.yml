@@ -44,8 +44,8 @@
       group: root
       mode: 0700
     with_items:
-    - fqdn
-    - group
+      - group_vars
+      - host_vars
 
   - name: make file list
     puppet_get_hiera_file_list:

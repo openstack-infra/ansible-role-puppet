@@ -1,15 +1,18 @@
 ---
 :hierarchy:
-  # Use private hieradata first
+  # Use private hieradata first. Align naming with ansible so that the private
+  # data can exist in a single copy for both ansible and puppet
   # Puppet3 paths
-  - "hieradata/%{::environment}/fqdn/%{::fqdn}"
-  - "hieradata/%{::environment}/group/%{group}" # no :: because group is set at nodescope
-  - "hieradata/%{::environment}/common"
+  - "hieradata/%{::environment}/host_vars/%{::fqdn}"
+  - "hieradata/%{::environment}/group_vars/%{group}" # no :: because group is set at nodescope
+  - "hieradata/%{::environment}/group_vars/all"
   # Puppet4 paths
-  - "%{::environment}/hieradata/fqdn/%{::fqdn}"
-  - "%{::environment}/hieradata/group/%{group}" # no :: because group is set at nodescope
-  - "%{::environment}/hieradata/common"
-  # Use public hieradata second, also be environmentally aware
+  - "%{::environment}/hieradata/host_vars/%{::fqdn}"
+  - "%{::environment}/hieradata/group_vars/%{group}" # no :: because group is set at nodescope
+  - "%{::environment}/hieradata/group_vars/all"
+  # Use public hieradata second, also be environmentally aware. Keep this
+  # in the old structure so that we don't have to do a dance. There isn't much
+  # here, and it can be transferred piecemeal.
   - "%{::environment}/hiera/fqdn/%{::fqdn}"
   - "%{::environment}/hiera/group/%{group}" # no :: because group is set at nodescope
   - "%{::environment}/hiera/common"
