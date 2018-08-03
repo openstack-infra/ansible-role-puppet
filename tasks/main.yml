@@ -30,6 +30,7 @@
   - name: Set management server hieradata var
     set_fact:
       mgmt_hieradata: "{{ '/etc/puppet/hieradata/' + puppet_environment if mgmt_puppet_version == '3' else '/etc/puppetlabs/code/environments/' + puppet_environment + '/hieradata' }}"
+    when: mgmt_hieradata is not defined
     delegate_to: localhost
 
   - name: Set hieradata var
