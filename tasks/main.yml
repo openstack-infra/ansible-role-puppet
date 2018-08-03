@@ -1,17 +1,25 @@
 ---
-- name: Get management server puppet version
-  shell:
-    cmd: "PATH=$PATH:/opt/puppetlabs/bin puppet --version | cut -d '.' -f 1"
-  delegate_to: localhost
-  register: mgmt_puppet_version
+- block:
 
-- name: Set management server puppet version fact
-  set_fact:
-    mgmt_puppet_version: "{{ mgmt_puppet_version.stdout }}"
+  - name: Get management server puppet version
+    shell:
+      cmd: "PATH=$PATH:/opt/puppetlabs/bin puppet --version | cut -d '.' -f 1"
+    delegate_to: localhost
+    register: mgmt_puppet_version
 
-- name: Sanity check management server puppet version
-  fail: "Unsupported puppet version {{ mgmt_puppet_version }}"
-  when: (mgmt_puppet_version != '3' and mgmt_puppet_version != '4')
+  - name: Set management server puppet version fact
+    set_fact:
+      mgmt_puppet_version: "{{ mgmt_puppet_version.stdout }}"
+
+  - name: Sanity check management server puppet version
+    fail: "Unsupported puppet version {{ mgmt_puppet_version }}"
+    when: (mgmt_puppet_version != '3' and mgmt_puppet_version != '4')
+
+  - name: Set management server hieradata var
+    set_fact:
+      mgmt_hieradata: "{{ '/etc/puppet/hieradata/' + puppet_environment if mgmt_puppet_version == '3' else '/etc/puppetlabs/code/environments/' + puppet_environment + '/hieradata' }}"
+
+  when: mgmt_hieradata is not defined
 
 - name: Get puppet version
   shell:
@@ -27,10 +35,6 @@
   when: (puppet_version != '3' and puppet_version != '4')
 
 - block:
-  - name: Set management server hieradata var
-    set_fact:
-      mgmt_hieradata: "{{ '/etc/puppet/hieradata/' + puppet_environment if mgmt_puppet_version == '3' else '/etc/puppetlabs/code/environments/' + puppet_environment + '/hieradata' }}"
-    delegate_to: localhost
 
   - name: Set hieradata var
     set_fact:
@@ -51,7 +55,7 @@
     puppet_get_hiera_file_list:
       fqdn: "{{ ansible_fqdn }}"
       groups: "{{ hostvars[inventory_hostname].group_names }}"
-      location: "{{ hieradata }}"
+      location: "{{ mgmt_hieradata }}"
     delegate_to: localhost
     register: hiera_file_paths
 
