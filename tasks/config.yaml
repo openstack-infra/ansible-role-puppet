@@ -1,16 +1,17 @@
----
 - name: Set puppet conf dir
   set_fact:
-      puppet_confdir: "{{ '/etc/puppet' if puppet_version == '3' else '/etc/puppetlabs/puppet' }}"
+    puppet_confdir: "{{ '/etc/puppet' if puppet_version == '3' else '/etc/puppetlabs/puppet' }}"
 
 - name: Set puppet code dir
   set_fact:
-      puppet_codedir: "{{ '/etc/puppet' if puppet_version == '3' else '/etc/puppetlabs/code' }}"
+    puppet_codedir: "{{ '/etc/puppet' if puppet_version == '3' else '/etc/puppetlabs/code' }}"
 
 - name: Enable puppet environments explicitly for puppet 3
   set_fact:
     puppet_environmentpath: '$confdir/environments'
-  when: puppet_version == '3' and puppet_environmentpath == ''
+  when:
+    - puppet_version == '3'
+    - puppet_environmentpath == ''
 
 # Create our config
 - name: Create puppet.conf from template

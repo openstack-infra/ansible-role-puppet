@@ -1,0 +1,174 @@
+- block:
+
+    - name: Get management server puppet version
+      shell:
+        cmd: "PATH=$PATH:/opt/puppetlabs/bin puppet --version | cut -d '.' -f 1"
+      delegate_to: localhost
+      register: mgmt_puppet_version
+
+    - name: Set management server puppet version fact
+      set_fact:
+        mgmt_puppet_version: "{{ mgmt_puppet_version.stdout }}"
+
+    - name: Sanity check management server puppet version
+      fail: "Unsupported puppet version {{ mgmt_puppet_version }}"
+      when:
+        - mgmt_puppet_version != '3'
+        - mgmt_puppet_version != '4'
+
+    - name: Set management server hieradata var
+      set_fact:
+        mgmt_hieradata: "{{ '/etc/puppet/hieradata/' + puppet_environment if mgmt_puppet_version == '3' else '/etc/puppetlabs/code/environments/' + puppet_environment + '/hieradata' }}"
+
+  when: mgmt_hieradata is not defined
+
+- name: Get puppet version
+  shell:
+    cmd: "PATH=$PATH:/opt/puppetlabs/bin puppet --version | cut -d '.' -f 1"
+  register: puppet_version
+
+- name: Set puppet version fact
+  set_fact:
+    puppet_version: "{{ puppet_version.stdout }}"
+
+- name: Sanity check puppet version
+  fail: "Unsupported puppet version {{ puppet_version }}"
+  when: (puppet_version != '3' and puppet_version != '4')
+
+- block:
+
+    - name: Set hieradata var
+      set_fact:
+        hieradata: "{{ '/etc/puppet/hieradata/' + puppet_environment if puppet_version == '3' else '/etc/puppetlabs/code/environments/' + puppet_environment + '/hieradata' }}"
+
+    - name: ensure hiera directory
+      file:
+        state: directory
+        path: "{{ hieradata }}/{{ item }}"
+        owner: root
+        group: root
+        mode: 0700
+      with_items:
+        - group_vars
+        - host_vars
+
+    - name: make file list
+      puppet_get_hiera_file_list:
+        fqdn: "{{ ansible_fqdn }}"
+        groups: "{{ hostvars[inventory_hostname].group_names }}"
+        location: "{{ mgmt_hieradata }}"
+      delegate_to: localhost
+      register: hiera_file_paths
+
+    - name: copy hiera files
+      copy:
+        src: "{{ mgmt_hieradata + '/' + item }}"
+        dest: "{{ hieradata + '/' + item }}"
+        mode: 0600
+      with_items: "{{ hiera_file_paths.paths|default() }}"
+
+  when: copy_hieradata
+
+- block:
+
+    - name: copy puppet modules
+      synchronize:
+        src: "{{ manifest_base }}/{{ puppet_environment }}"
+        dest: "{{ manifest_base }}"
+
+    - name: ensure hieradata manifest link is present
+      file:
+        src: "{{ '/etc/puppet/hieradata' if puppet_version == '3' else '/etc/puppetlabs/code/environments' }}"
+        dest: "{{ manifest_base }}/hieradata"
+        state: link
+      when: copy_hieradata
+
+    - name: Set management server puppet module dir to user-defined path
+      set_fact:
+        mgmt_puppet_module_dir: "{{ puppet_basemodulepath }}"
+      when: puppet_basemodulepath != ''
+
+    - name: Set management server puppet module dir
+      set_fact:
+        mgmt_puppet_module_dir: "{{ '/etc/puppet/modules' if mgmt_puppet_version == '3' else '/etc/puppetlabs/code/modules' }}"
+      delegate_to: localhost
+      when: mgmt_puppet_module_dir is not defined
+
+    - name: Set puppet module dir to user-defined path
+      set_fact:
+        puppet_module_dir: "{{ puppet_basemodulepath }}"
+      when: puppet_basemodulepath != ''
+
+    - name: Set puppet module dir
+      set_fact:
+        puppet_module_dir: "{{ '/etc/puppet' if puppet_version == '3' else '/etc/puppetlabs/code' }}"
+      when: puppet_module_dir is not defined
+
+    - name: copy system puppet modules
+      synchronize:
+        src: "{{ mgmt_puppet_module_dir }}"
+        dest: "{{ puppet_module_dir }}"
+
+  when:
+  - copy_puppet
+  - manifest_base is defined
+
+- name: setup config files
+  when: manage_config|bool
+  include_tasks: config.yaml
+
+- block:
+
+    - name: run puppet
+      puppet:
+        puppetmaster: "{{ puppetmaster|default(omit) }}"
+        manifest: "{{ manifest|default(omit) }}"
+        show_diff: "{{ show_diff|default(false) }}"
+        facts: "{{ facts|default(omit) }}"
+        facter_basename: "{{ facter_basename|default(omit) }}"
+        logdest: "{{ puppet_logdest|default(omit) }}"
+        environment: "{{ puppet_environment|default(omit) }}"
+        noop: "{{ puppet_noop|default(omit) }}"
+        debug: "{{ puppet_debug|default(omit) }}"
+        timeout: "{{ puppet_timeout|default(omit) }}"
+
+- always:
+
+    - name: find logs
+      shell: "ls -tr /var/lib/puppet/reports/{{ ansible_fqdn }}/*_puppetdb.json"
+      register: files
+      failed_when: files.stdout_lines|default("") == ""
+
+    - name: set log filename
+      set_fact: puppet_logfile="{{ files.stdout_lines|sort|last }}"
+      when: "{{ files.stdout_lines|length > 0 }}"
+
+    - name: create reports directory
+      file:
+          path: '/var/lib/puppet/reports/{{ ansible_fqdn }}'
+          owner: root
+          group: root
+          mode: 0755
+          state: directory
+      delegate_to: localhost
+      when: "{{ files.stdout_lines|length > 0 }}"
+
+    - name: fetch file
+      synchronize:
+        mode: pull
+        src: "{{ puppet_logfile }}"
+        dest: /var/lib/puppet/reports/{{ ansible_fqdn }}
+      when: "{{ files.stdout_lines|length > 0 }}"
+
+    - name: post facts
+      puppet_post_puppetdb:
+        puppetdb: "{{ puppetdb }}"
+        hostvars: "{{ hostvars[inventory_hostname] }}"
+        logfile: "{{ puppet_logfile }}"
+        whoami: "{{ puppet_report_as }}"
+      delegate_to: localhost
+      when: "{{ files.stdout_lines|length > 0 }}"
+
+  when:
+    - puppetdb is defined
+    - puppet_report_as is defined
