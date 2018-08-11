@@ -26,10 +26,12 @@
   shell:
     cmd: "PATH=$PATH:/opt/puppetlabs/bin puppet --version | cut -d '.' -f 1"
   register: puppet_version
+  when: puppet_version is not defined
 
 - name: Set puppet version fact
   set_fact:
     puppet_version: "{{ puppet_version.stdout }}"
+  when: puppet_version is not defined
 
 - name: Sanity check puppet version
   fail: "Unsupported puppet version {{ puppet_version }}"
