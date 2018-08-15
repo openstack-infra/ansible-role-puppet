@@ -115,7 +115,7 @@
 
 - name: setup config files
   when: manage_config|bool
-  include: config.yaml
+  include_tasks: config.yaml
 
 - block:
 
