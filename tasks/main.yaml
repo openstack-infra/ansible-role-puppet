@@ -110,12 +110,12 @@
         dest: "{{ puppet_module_dir }}"
 
   when:
-  - copy_puppet
-  - manifest_base is defined
+    - copy_puppet
+    - manifest_base is defined
 
 - name: setup config files
   when: manage_config|bool
-  include_tasks: config.yaml
+  include: config.yaml
 
 - block:
 
