@@ -1,0 +1,9 @@
+Code-Review+2: Joshua Hesketh <josh@nitrotech.org>
+Code-Review+2: James E. Blair <corvus@inaugust.com>
+Workflow+1: Monty Taylor <mordred@inaugust.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Wed, 15 Aug 2018 22:52:05 +0000
+Reviewed-on: https://review.openstack.org/590338
+Project: openstack-infra/ansible-role-puppet
+Branch: refs/heads/master
