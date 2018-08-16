@@ -25,11 +25,14 @@
 - name: Get puppet version
   shell:
     cmd: "PATH=$PATH:/opt/puppetlabs/bin puppet --version | cut -d '.' -f 1"
-  register: puppet_version
+  register: puppet_version_output
+  when: puppet_version is not defined
 
 - name: Set puppet version fact
   set_fact:
-    puppet_version: "{{ puppet_version.stdout }}"
+    puppet_version: "{{ puppet_version_output.stdout }}"
+  when:
+    - puppet_version is not defined
 
 - name: Sanity check puppet version
   fail: "Unsupported puppet version {{ puppet_version }}"
