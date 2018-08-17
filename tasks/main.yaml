@@ -73,7 +73,7 @@
 
     - name: copy puppet modules
       synchronize:
-        src: "{{ manifest_base }}/{{ puppet_environment }}"
+        src: "{{ mgmt_manifest_base }}"
         dest: "{{ manifest_base }}"
 
     - name: ensure hieradata manifest link is present

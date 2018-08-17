@@ -17,3 +17,4 @@ puppet_environment_basedir: '/opt/system-config/'
 puppet_environment: production
 puppet_timeout: 30m
 futureparser: False
+mgmt_manifestpath: '{{ manifest_base }}/{{ puppet_environment }}'
