@@ -71,6 +71,11 @@
 
 - block:
 
+    - name: Ensure target directory exists
+      file:
+        path: "{{ manifest_base }}"
+        state: directory
+
     - name: copy puppet modules
       synchronize:
         src: "{{ mgmt_manifestpath }}"
