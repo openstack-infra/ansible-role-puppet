@@ -82,7 +82,7 @@
     - name: ensure hieradata manifest link is present
       file:
         src: "{{ '/etc/puppet/hieradata' if puppet_version == '3' else '/etc/puppetlabs/code/environments' }}"
-        dest: "{{ manifest_base }}/hieradata"
+        dest: "{{ puppet_hieradata_link_dest }}"
         state: link
       when: copy_hieradata
 
