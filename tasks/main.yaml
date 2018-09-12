@@ -142,43 +142,42 @@
         debug: "{{ puppet_debug|default(omit) }}"
         timeout: "{{ puppet_timeout|default(omit) }}"
 
-- always:
+  always:
+    - block:
+        - name: find logs
+          shell: "ls -tr /var/lib/puppet/reports/{{ ansible_fqdn }}/*_puppetdb.json"
+          register: files
+          failed_when: files.stdout_lines|default("") == ""
 
-    - name: find logs
-      shell: "ls -tr /var/lib/puppet/reports/{{ ansible_fqdn }}/*_puppetdb.json"
-      register: files
-      failed_when: files.stdout_lines|default("") == ""
+        - name: set log filename
+          set_fact: puppet_logfile="{{ files.stdout_lines|sort|last }}"
+          when: "{{ files.stdout_lines|length > 0 }}"
 
-    - name: set log filename
-      set_fact: puppet_logfile="{{ files.stdout_lines|sort|last }}"
-      when: "{{ files.stdout_lines|length > 0 }}"
+        - name: create reports directory
+          file:
+              path: '/var/lib/puppet/reports/{{ ansible_fqdn }}'
+              owner: root
+              group: root
+              mode: 0755
+              state: directory
+          delegate_to: localhost
+          when: "{{ files.stdout_lines|length > 0 }}"
 
-    - name: create reports directory
-      file:
-          path: '/var/lib/puppet/reports/{{ ansible_fqdn }}'
-          owner: root
-          group: root
-          mode: 0755
-          state: directory
-      delegate_to: localhost
-      when: "{{ files.stdout_lines|length > 0 }}"
+        - name: fetch file
+          synchronize:
+            mode: pull
+            src: "{{ puppet_logfile }}"
+            dest: /var/lib/puppet/reports/{{ ansible_fqdn }}
+          when: "{{ files.stdout_lines|length > 0 }}"
 
-    - name: fetch file
-      synchronize:
-        mode: pull
-        src: "{{ puppet_logfile }}"
-        dest: /var/lib/puppet/reports/{{ ansible_fqdn }}
-      when: "{{ files.stdout_lines|length > 0 }}"
-
-    - name: post facts
-      puppet_post_puppetdb:
-        puppetdb: "{{ puppetdb }}"
-        hostvars: "{{ hostvars[inventory_hostname] }}"
-        logfile: "{{ puppet_logfile }}"
-        whoami: "{{ puppet_report_as }}"
-      delegate_to: localhost
-      when: "{{ files.stdout_lines|length > 0 }}"
-
-  when:
-    - puppetdb is defined
-    - puppet_report_as is defined
+        - name: post facts
+          puppet_post_puppetdb:
+            puppetdb: "{{ puppetdb }}"
+            hostvars: "{{ hostvars[inventory_hostname] }}"
+            logfile: "{{ puppet_logfile }}"
+            whoami: "{{ puppet_report_as }}"
+          delegate_to: localhost
+          when: "{{ files.stdout_lines|length > 0 }}"
+      when:
+          - puppetdb is defined
+          - puppet_report_as is defined
