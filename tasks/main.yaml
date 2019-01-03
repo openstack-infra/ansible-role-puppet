@@ -83,7 +83,6 @@
       synchronize:
         src: "{{ mgmt_manifestpath }}"
         dest: "{{ manifest_base }}"
-      no_log: true
 
     - name: ensure hieradata manifest link is present
       file:
@@ -117,7 +116,6 @@
       synchronize:
         src: "{{ mgmt_puppet_module_dir }}"
         dest: "{{ puppet_module_dir }}"
-      no_log: true
 
   when:
     - copy_puppet
