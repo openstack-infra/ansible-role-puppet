@@ -7,9 +7,9 @@
   - "hieradata/%{::environment}/group_vars/%{group}" # no :: because group is set at nodescope
   - "hieradata/%{::environment}/group_vars/all"
   # Puppet4 paths
-  - "%{::environment}/hieradata/host_vars/%{::fqdn}"
-  - "%{::environment}/hieradata/group_vars/%{group}" # no :: because group is set at nodescope
-  - "%{::environment}/hieradata/group_vars/all"
+  - "hieradata/%{::environment}/hieradata/host_vars/%{::fqdn}"
+  - "hieradata/%{::environment}/hieradata/group_vars/%{group}" # no :: because group is set at nodescope
+  - "hieradata/%{::environment}/hieradata/group_vars/all"
   # Use public hieradata second, also be environmentally aware. Keep this
   # in the old structure so that we don't have to do a dance. There isn't much
   # here, and it can be transferred piecemeal.
